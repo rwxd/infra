@@ -1,0 +1,28 @@
+---
+borgbackup_key_dir: /etc/borg/keys/
+borgbackup_hetzner_config: /etc/borg/hetzner.conf
+borgbackup_log_dir: /var/log/borg
+
+borgbackup_enabled: true
+borgbackup_source_directories:
+  - /etc/
+  - /home
+  - /etc
+  - /opt
+  - /root
+
+borgbackup_exclude_patterns:
+  - /opt/containerd
+  - /var/run
+  - /var/lib/docker/overlay2/*
+
+borgbackup_keep_hourly: 24
+borgbackup_keep_daily: 7
+borgbackup_keep_weekly: 4
+borgbackup_keep_monthly: 2
+
+borgbackup_checks:
+  - repository
+  - archives
+
+borgbackup_before_backup: []

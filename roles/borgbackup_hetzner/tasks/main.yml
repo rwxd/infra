@@ -1,0 +1,41 @@
+---
+- name: Check repopass defined
+  assert:
+    that: borgbackup_repopass is defined
+
+- name: Install borg
+  ansible.builtin.package:
+    name: borg
+    state: latest
+  become: true
+  when: ansible_distribution in ["Archlinux"]
+
+- name: Install borgbackup
+  ansible.builtin.package:
+    name: borgbackup
+    state: latest
+  become: true
+  when: ansible_distribution in ["Debian", "Ubuntu"]
+
+- name: Create borgbackup key directory
+  ansible.builtin.file:
+    path: "{{ borgbackup_key_dir }}"
+    state: directory
+    owner: root
+    group: root
+
+- name: Check if config exists
+  stat:
+    path: "{{ borgbackup_hetzner_config }}"
+  register: config_file_result
+
+- name: borg - create log dir
+  file:
+    path: "{{ borgbackup_log_dir }}"
+    state: directory
+    owner: root
+    group: root
+
+- name: Initialize Hetzner StorageBox for Borgbackup
+  when: not config_file_result.exists
+  block: []

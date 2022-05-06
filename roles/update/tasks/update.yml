@@ -1,0 +1,7 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+  become: true
+  when: ansible_distribution in ["Debian", "Ubuntu"]
