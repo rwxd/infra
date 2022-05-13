@@ -1,0 +1,24 @@
+all:
+  children:
+    oci:
+      hosts:
+        arm:
+          ansible_host: 130.61.132.217
+          borgbackup_enabled: true
+          borgbackup_source_directories:
+            - /etc/
+            - /home
+            - /etc
+            - /opt
+            - /root
+          borgbackup_exclude_patterns:
+            - /opt/containerd
+            - /var/run
+            - /var/lib/docker/overlay2/*
+          borgbackup_keep_hourly: 24
+          borgbackup_keep_daily: 7
+          borgbackup_keep_weekly: 4
+          borgbackup_keep_monthly: 2
+          unattended_automatic_reboot: true
+          unattended_automatic_reboot_time: 03:00
+          borgbackup_repopass: test
