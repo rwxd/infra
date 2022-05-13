@@ -1,8 +1,20 @@
 ---
-- name: Configure infrastructure
+- name: Configure systems
   hosts: all
   become: true
   tasks:
+    - name: Configure users
+      include_role:
+        name: users
+
+    - name: Configure ssh-hardening
+      include_role:
+        name: ssh-hardening
+
+    - name: Configure firewalld
+      include_role:
+        name: firewalld
+
     - name: Configure unattended-upgrades
       include_role:
         name: unattended-upgrades
@@ -12,7 +24,31 @@
       include_role:
         name: update
 
-    - name: Configure Borgbackup
+    - name: Get architecture
+      ansible.builtin.shell:
+        cmd: dpkg --print-architecture
+      register: architecture
+
+    - name: Install docker
       include_role:
-        name: borgbackup_hetzner
-      when: borgbackup_enabled
+        name: geerlingguy.docker
+      when: inventory_hostname in ["ap01"]
+      vars:
+        docker_apt_arch: "{{ architecture.stdout }}"
+
+    - name: Install pip with docker package
+      include_role:
+        name: geerlingguy.pip
+      when: inventory_hostname in ["ap01"]
+      vars:
+        pip_install_packages:
+          - name: docker
+
+    - name: Configure influxdb
+      include_role:
+        name: docker-influxdb
+      when: inventory_hostname in ["ap01"]
+    # - name: Configure Borgbackup
+    #   include_role:
+    #     name: borgbackup_hetzner
+    #   when: borgbackup_enabled

@@ -1,0 +1,37 @@
+---
+- name: Combine users with host_users
+  set_fact:
+    combined_users: "{{ users + host_users | default([]) }}"
+
+- name: Combine user groups
+  set_fact:
+    user_groups: "{{ item.groups + user_groups | default([]) }}"
+  when: "{{ item.groups is defined }}"
+  with_items: "{{ combined_users }}"
+
+- name: Ensure groups are present
+  group:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ user_groups | default([]) | unique }}"
+
+- name: Create users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    comment: "{{ item.comment | default('Created with ansible') }}"
+    uid: "{{ item.uid | default(omit) }}"
+    groups: "{{ item.groups | default([]) }}"
+    state: "{{ item.state | default('present') }}"
+    password: "{{ item.password | default(omit) }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    create_home: "{{ item.create_home | default(true) }}"
+    generate_ssh_key: "{{ item.create_home | default(true) }}"
+    ssh_key_type: "{{ item.ssh_key_type | default('ed25519') }}"
+    system: "{{ item.system | default(omit) }}"
+  with_items: "{{ combined_users }}"
+
+- name: Insert authorized keys for users
+  include_tasks: authorized_keys.yml
+  loop: "{{ combined_users }}"
+  loop_control:
+    loop_var: user

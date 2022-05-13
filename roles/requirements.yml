@@ -3,3 +3,13 @@
   src: https://github.com/jnv/ansible-role-unattended-upgrades.git
   scm: git
   version: v1.12.1
+
+- name: geerlingguy.docker
+  src: https://github.com/geerlingguy/ansible-role-docker.git
+  scm: git
+  version: 4.2.2
+
+- name: geerlingguy.pip
+  src: https://github.com/geerlingguy/ansible-role-pip.git
+  scm: git
+  version: 2.1.0

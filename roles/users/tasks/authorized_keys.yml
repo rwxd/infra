@@ -1,0 +1,8 @@
+---
+- name: Insert authorized_keys
+  ansible.builtin.authorized_key:
+    user: "{{ user.name }}"
+    key: "{{ item.key }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ user.authorized_keys }}"
+  when: "{{ user.authorized_keys is defined}}"

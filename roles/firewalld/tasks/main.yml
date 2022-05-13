@@ -1,0 +1,48 @@
+---
+- name: Install firewalld
+  ansible.builtin.apt:
+    name: firewalld
+    state: latest
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_distribution in ["Debian", "Ubuntu"]
+
+- name: Set firewall rule
+  ansible.posix.firewalld:
+    service: "{{ rule.service | default(omit) }}"
+    port: "{{ rule.port | default(omit) }}"
+    permanent: "{{ rule.permanent | default(true) }}"
+    zone: "{{ rule.zone | default('public') }}"
+    state: "{{ rule.state }}"
+    source: "{{ rule.source | default(omit) }}"
+    target: "{{ rule.target | default(omit) }}"
+  when: >
+    rule.state is defined
+    and rule.state in ["disabled", "enabled"]
+  loop: "{{ firewalld_rules }}"
+  loop_control:
+    loop_var: rule
+
+- name: Set state of firewall rule
+  ansible.posix.firewalld:
+    service: "{{ rule.service | default(omit) }}"
+    port: "{{ rule.port | default(omit) }}"
+    zone: "{{ rule.zone | default('public') }}"
+    state: "{{ rule.state }}"
+  when: >
+    rule.state is defined
+    and rule.state in ["present", "absent"]
+  loop: "{{ firewalld_rules }}"
+  loop_control:
+    loop_var: rule
+
+- name: Start and enable firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded

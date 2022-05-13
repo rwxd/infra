@@ -1,0 +1,8 @@
+---
+influxdb_image: docker.io/influxdb:2.2
+influxdb_state: started
+influxdb_env: {}
+influxdb_dir: "/var/containers/influxdb"
+influxdb_data_dir: "{{ influxdb_dir }}/data"
+influxdb_config_file: "{{ influxdb_dir }}/config.yml"
+influxdb_user: influxdb

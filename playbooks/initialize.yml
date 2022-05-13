@@ -1,0 +1,8 @@
+---
+- name: Configure infrastructure
+  hosts: all
+  become: true
+  tasks:
+    - name: Configure users
+      include_role:
+        name: users

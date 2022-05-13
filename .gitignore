@@ -1,4 +1,6 @@
 roles/unattended-upgrades
+roles/geerlingguy*
+log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,47 @@
+---
+- name: Disable Password Authentication
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^PasswordAuthentication"
+    line="PasswordAuthentication no"
+    state=present
+    backup=yes
+  notify: restart sshd
+
+- name: Disable Root Login
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^PermitRootLogin"
+    line="PermitRootLogin no"
+    state=present
+    backup=yes
+  notify: restart sshd
+
+- name: Change Max Authentication Tries -> 10
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^MaxAuthTries"
+    line="MaxAuthTries 10"
+    state=present
+    backup=yes
+  notify: restart sshd
+
+- name: Change PubkeyAuthentication -> yes
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^PubkeyAuthentication"
+    line="PubkeyAuthentication yes"
+    state=present
+    backup=yes
+  notify: restart sshd
+
+- name: Change AuthenticationMethods -> publickey
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^AuthenticationMethods"
+    line="AuthenticationMethods publickey"
+    state=present
+    backup=yes
+  notify: restart sshd
+
+- name: Denying user pi and ubuntu
+  lineinfile: dest=/etc/ssh/sshd_config
+    regexp="^DenyUsers"
+    line="DenyUsers pi, ubuntu"
+    state=present
+    backup=yes

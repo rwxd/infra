@@ -1,0 +1,23 @@
+---
+- name: Create influxdb directory
+  ansible.builtin.file:
+    path: "{{ influxdb_data_dir }}"
+    owner: "{{ influxdb_user }}"
+    group: 0
+    recurse: true
+    state: directory
+
+- name: Create influxdb container
+  community.docker.docker_container:
+    name: influxdb
+    image: "{{ influxdb_image }}"
+    pull: true
+    state: "{{ influxdb_state }}"
+    user: "{{ influxdb_user }}"
+    env: "{{ influxdb_env }}"
+    published_ports:
+      - 8086:8086
+    volumes:
+      - "{{ influxdb_data_dir }}:/var/lib/influxdb2"
+      - "{{ influxdb_config_file }}:/etc/influxdb2/config.yml"
+    restart_policy: unless-stopped
