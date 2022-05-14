@@ -14,6 +14,7 @@
     - name: Configure firewalld
       include_role:
         name: firewalld
+      when: firewalld is defined and firewalld
 
     - name: Configure unattended-upgrades
       include_role:
@@ -32,14 +33,14 @@
     - name: Install docker
       include_role:
         name: geerlingguy.docker
-      when: inventory_hostname in ["ap01"]
+      when: docker is defined and docker
       vars:
         docker_apt_arch: "{{ architecture.stdout }}"
 
     - name: Install pip with docker package
       include_role:
         name: geerlingguy.pip
-      when: inventory_hostname in ["ap01"]
+      when: docker is defined and docker
       vars:
         pip_install_packages:
           - name: docker
