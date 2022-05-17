@@ -1,1 +1,2 @@
 inventory.yml filter=git-crypt diff=git-crypt
+wireguard-config-home filter=git-crypt diff=git-crypt

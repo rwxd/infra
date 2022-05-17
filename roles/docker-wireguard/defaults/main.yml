@@ -1,0 +1,20 @@
+---
+wireguard_container_name: wireguard
+wireguard_container_image: docker.io/linuxserver/wireguard:latest
+wireguard_container_ports:
+  - "51820/udp:51820/udp"
+wireguard_container_state: started
+wireguard_container_user_id: 1000
+wireguard_container_group_id: 1000
+wireguard_container_peers: []
+wireguard_container_env:
+  "PUID": "{{ wireguard_container_user_id | quote }}"
+  "PGID": "{{ wireguard_container_group_id | quote }}"
+  "TZ": "{{ timezone | default('Europe/Berlin') | quote }}"
+  "SERVERURL": "{{ wireguard_container_vpn_host | quote }}"
+  "PEERS": "{{ ','.join(wireguard_container_peers) | quote }}"
+wireguard_container_dir: "/var/containers/wireguard/"
+wireguard_container_configs_dir: "{{ wireguard_container_dir }}/configs/"
+wireguard_container_user: wireguard
+wireguard_container_restart_policy: unless-stopped
+wireguard_container_labels: {}

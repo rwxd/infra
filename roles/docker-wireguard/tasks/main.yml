@@ -1,0 +1,39 @@
+---
+- name: Create wireguard directory
+  ansible.builtin.file:
+    path: "{{  wireguard_container_dir}}"
+    owner: "{{ wireguard_container_user_id }}"
+    group: "{{ wireguard_container_group_id }}"
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create wireguard configs directory
+  ansible.builtin.file:
+    path: "{{  wireguard_container_configs_dir}}"
+    owner: "{{ wireguard_container_user_id }}"
+    group: "{{ wireguard_container_group_id }}"
+    recurse: true
+    state: directory
+  become: true
+
+- name: Make sure the Wireguard container is created and running
+  docker_container:
+    name: "{{ wireguard_container_name }}"
+    image: "{{ wireguard_container_image }}"
+    pull: true
+    privileged: true
+    sysctls:
+      "net.ipv4.conf.all.src_valid_mark": "1"
+    capabilities:
+      - net_admin
+      - sys_module
+    state: "{{ wireguard_container_state }}"
+    env: "{{ wireguard_container_env }}"
+    ports: "{{ wireguard_container_ports }}"
+    volumes:
+      - "{{ wireguard_container_configs_dir }}:/config"
+      - "/lib/modules:/lib/modules"
+    restart_policy: "{{ wireguard_container_restart_policy }}"
+    labels: "{{ wireguard_container_labels }}"
+  become: true

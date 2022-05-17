@@ -1,9 +1,17 @@
 ---
 - name: Create influxdb directory
   ansible.builtin.file:
+    path: "{{ influxdb_dir }}"
+    owner: "{{ influxdb_user_id }}"
+    group: "{{ influxdb_group_id }}"
+    recurse: true
+    state: directory
+
+- name: Create influxdb data directory
+  ansible.builtin.file:
     path: "{{ influxdb_data_dir }}"
-    owner: "{{ influxdb_user }}"
-    group: 0
+    owner: "{{ influxdb_user_id }}"
+    group: "{{ influxdb_group_id }}"
     recurse: true
     state: directory
 
@@ -19,5 +27,5 @@
       - 8086:8086
     volumes:
       - "{{ influxdb_data_dir }}:/var/lib/influxdb2"
-      - "{{ influxdb_config_file }}:/etc/influxdb2/config.yml"
+    #       - "{{ influxdb_config_file }}:/etc/influxdb2/config.yml"
     restart_policy: unless-stopped

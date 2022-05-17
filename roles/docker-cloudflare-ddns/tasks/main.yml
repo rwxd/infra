@@ -1,0 +1,9 @@
+---
+- name: Make sure the cloudflare-ddns container is created and running
+  docker_container:
+    name: "{{ cloudflare_ddns_container_name }}"
+    image: "{{ cloudflare_ddns_container_image }}"
+    pull: true
+    state: "{{ cloudflare_ddns_container_state }}"
+    env: "{{ cloudflare_ddns_container_env }}"
+    restart_policy: "{{ cloudflare_ddns_container_restart_policy }}"

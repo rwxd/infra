@@ -13,3 +13,8 @@
   src: https://github.com/geerlingguy/ansible-role-pip.git
   scm: git
   version: 2.1.0
+
+- name: ansible-role-k3s
+  src: git@github.com:PyratLabs/ansible-role-k3s.git
+  scm: git
+  version: v3.1.2

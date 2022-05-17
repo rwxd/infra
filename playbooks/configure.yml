@@ -3,41 +3,45 @@
   hosts: all
   become: true
   tasks:
-    - name: Configure users
+    - name: set hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: configure users
       include_role:
         name: users
 
-    - name: Configure ssh-hardening
+    - name: configure ssh-hardening
       include_role:
         name: ssh-hardening
 
-    - name: Configure firewalld
+    - name: configure firewalld
       include_role:
         name: firewalld
       when: firewalld is defined and firewalld
 
-    - name: Configure unattended-upgrades
+    - name: configure unattended-upgrades
       include_role:
         name: unattended-upgrades
-      when: ansible_distribution in ["Debian", "Ubuntu"]
+      when: ansible_distribution in ["debian", "ubuntu"]
 
-    - name: Update system
+    - name: update system
       include_role:
         name: update
 
-    - name: Get architecture
+    - name: get architecture
       ansible.builtin.shell:
         cmd: dpkg --print-architecture
       register: architecture
 
-    - name: Install docker
+    - name: install docker
       include_role:
         name: geerlingguy.docker
       when: docker is defined and docker
       vars:
         docker_apt_arch: "{{ architecture.stdout }}"
 
-    - name: Install pip with docker package
+    - name: install pip with docker package
       include_role:
         name: geerlingguy.pip
       when: docker is defined and docker
@@ -45,11 +49,98 @@
         pip_install_packages:
           - name: docker
 
-    - name: Configure influxdb
+    - name: configure influxdb
       include_role:
         name: docker-influxdb
       when: inventory_hostname in ["ap01"]
-    # - name: Configure Borgbackup
-    #   include_role:
-    #     name: borgbackup_hetzner
-    #   when: borgbackup_enabled
+
+- name: Cloudflare dyndns
+  hosts: cloud
+  tasks:
+    - name: Include cloudflare_ddns container
+      include_role:
+        name: docker-cloudflare-ddns
+
+- name: Build wireguard containers
+  hosts: cloud
+  tasks:
+    - name: Create local configuration directory
+      ansible.builtin.file:
+        path: "../configs/wireguard/{{ inventory_hostname }}"
+        state: directory
+      delegate_to: localhost
+
+    - name: Include wireguard role
+      include_role:
+        name: docker-wireguard
+
+    - name: Get current user
+      ansible.builtin.shell:
+        cmd: whoami
+      register: whoami
+
+    - name: Set copy facts
+      ansible.builtin.set_fact:
+        whoami: "{{ whoami.stdout }}"
+        temp_path: "/home/{{ whoami.stdout }}/wireguard_configs"
+
+    - name: Copy wireguard configs to user dir
+      ansible.builtin.copy:
+        src: "{{ wireguard_container_configs_dir }}"
+        dest: "{{ temp_path }}"
+        remote_src: true
+        owner: "{{ whoami }}"
+        group: "{{ whoami }}"
+      become: true
+
+    - name: Fetch wireguard configs
+      ansible.builtin.synchronize:
+        src: "{{ temp_path }}"
+        dest: "../configs/{{ inventory_hostname }}/"
+        mode: pull
+
+    - name: Delete temp path
+      ansible.builtin.file:
+        path: "{{ temp_path }}"
+        state: absent
+
+- name: Build k3s cluster
+  hosts: ap01, k3s-node01, k3s-node02
+  vars:
+    k3s_build_cluster: true
+    k3s_become: true
+    k3s_state: installed
+    k3s_server:
+      disable:
+        - traefik
+  tasks:
+    - name: Install required packages
+      ansible.builtin.apt:
+        name: linux-modules-extra-raspi
+        state: present
+      register: installation
+      become: true
+
+    - name: Reboot
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+      when: installation.changed
+      become: true
+
+    - name: Include k3s role
+      include_role:
+        name: ansible-role-k3s
+
+    - name: Create kubeconfig directory
+      ansible.builtin.file:
+        path: ../kubeconfigs
+        state: directory
+      delegate_to: localhost
+
+    - name: Get kubeconfig from master
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "../kubeconfigs/{{ inventory_hostname }}"
+        flat: true
+      become: true
+      when: k3s_control_node is defined and k3s_control_node
