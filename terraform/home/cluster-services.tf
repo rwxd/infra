@@ -64,7 +64,7 @@ resource "helm_release" "external-dns" {
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "external-dns"
   namespace  = "external-dns"
-  version    = "6.4.2"
+  version    = "6.4.3"
 
   depends_on = [
     kubernetes_namespace.external-dns,
