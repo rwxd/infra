@@ -8,7 +8,7 @@ Cloudflare Dynamic DNS, Docker & K3s.
 ### K3s
 
 Some Pi's participate in a K3s cluster. The cluster is managed with Terraform.
-All nodes have hard drive for replicated persistent storage with [Longhorn](https://longhorn.io/).
+All nodes have hard drive(s) for replicated persistent storage with [Longhorn](https://longhorn.io/).
 
 Bare metal load-balancing works thanks to [MetalLB](https://metallb.universe.tf/).
 Ingress is managed with the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/).
