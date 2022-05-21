@@ -6,13 +6,15 @@
 - name: Combine user groups
   set_fact:
     user_groups: "{{ item.groups + user_groups | default([]) }}"
-  when: "{{ item.groups is defined }}"
+  become: true
   with_items: "{{ combined_users }}"
+  when: "{{ item.groups is defined }}"
 
 - name: Ensure groups are present
   group:
     name: "{{ item }}"
     state: present
+  become: true
   with_items: "{{ user_groups | default([]) | unique }}"
 
 - name: Create users
@@ -28,6 +30,7 @@
     generate_ssh_key: "{{ item.create_home | default(true) }}"
     ssh_key_type: "{{ item.ssh_key_type | default('ed25519') }}"
     system: "{{ item.system | default(omit) }}"
+  become: true
   with_items: "{{ combined_users }}"
 
 - name: Insert authorized keys for users

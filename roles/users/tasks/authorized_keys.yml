@@ -4,5 +4,6 @@
     user: "{{ user.name }}"
     key: "{{ item.key }}"
     state: "{{ item.state | default('present') }}"
+  become: true
   with_items: "{{ user.authorized_keys }}"
   when: "{{ user.authorized_keys is defined}}"
