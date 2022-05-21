@@ -11,25 +11,23 @@ resource "helm_release" "metallb" {
   namespace  = "metallb"
   version    = "0.12.1"
 
-  depends_on = [kubernetes_namespace.metallb, ]
+  depends_on = [kubernetes_namespace.metallb]
 
-  set {
-    name  = "configInline.address-pools[0].name"
-    value = "default"
-    type  = "string"
-  }
-
-  set {
-    name  = "configInline.address-pools[0].protocol"
-    value = "layer2"
-    type  = "string"
-  }
-
-  set {
-    name  = "configInline.address-pools[0].addresses[0]"
-    value = "192.168.3.200-192.168.3.250"
-    type  = "string"
-  }
+  values = [
+    yamlencode({
+      configInline = {
+        address-pools = [
+          {
+            name     = "default"
+            protocol = "layer2"
+            addresses = [
+              "192.168.3.200-192.168.3.250"
+            ]
+          }
+        ]
+      }
+    })
+  ]
 }
 
 resource "kubernetes_namespace" "nginx-ingress-controller" {
@@ -47,10 +45,13 @@ resource "helm_release" "nginx-ingress-controller" {
 
   depends_on = [helm_release.metallb, kubernetes_namespace.nginx-ingress-controller]
 
-  set {
-    name  = "defaultBackend.enabled"
-    value = false
-  }
+  values = [
+    yamlencode({
+      defaultBackend = {
+        enabled = false
+      }
+    })
+  ]
 }
 
 resource "kubernetes_namespace" "external-dns" {
@@ -66,47 +67,23 @@ resource "helm_release" "external-dns" {
   namespace  = "external-dns"
   version    = "6.4.3"
 
-  depends_on = [
-    kubernetes_namespace.external-dns,
+  depends_on = [kubernetes_namespace.external-dns]
+
+  values = [
+    yamlencode({
+      image = {
+        registry   = "gcr.io"
+        repository = "k8s-staging-external-dns/external-dns"
+        tag        = "v20220128-external-dns-helm-chart-1.7.1-50-g600111f8-arm64v8"
+      }
+      provider = "cloudflare"
+      cloudflare = {
+        apiKey  = var.cloudflare_api_key
+        email   = var.cloudflare_email
+        proxied = false
+      }
+    })
   ]
-
-  set {
-    name  = "image.registry"
-    value = "gcr.io"
-    type  = "string"
-  }
-
-  set {
-    name  = "image.repository"
-    value = "k8s-staging-external-dns/external-dns"
-    type  = "string"
-  }
-
-  set {
-    name  = "image.tag"
-    value = "v20220128-external-dns-helm-chart-1.7.1-50-g600111f8-arm64v8"
-    type  = "string"
-  }
-
-  set {
-    name  = "provider"
-    value = "cloudflare"
-  }
-
-  set {
-    name  = "cloudflare.apiKey"
-    value = var.cloudflare_api_key
-  }
-
-  set {
-    name  = "cloudflare.email"
-    value = var.cloudflare_email
-  }
-
-  set {
-    name  = "cloudflare.proxied"
-    value = false
-  }
 }
 
 resource "kubernetes_namespace" "cert-manager" {
@@ -122,14 +99,13 @@ resource "helm_release" "cert-manager" {
   namespace  = "cert-manager"
   version    = "v1.8.0"
 
-  depends_on = [
-    kubernetes_namespace.cert-manager
-  ]
+  depends_on = [kubernetes_namespace.cert-manager]
 
-  set {
-    name  = "installCRDs"
-    value = true
-  }
+  values = [
+    yamlencode({
+      installCRDs = true
+    })
+  ]
 }
 
 resource "kubernetes_secret" "cert-manager-cloudflare-api" {
@@ -144,10 +120,7 @@ resource "kubernetes_secret" "cert-manager-cloudflare-api" {
 }
 
 resource "kubectl_manifest" "cluster-issuer-prod" {
-  depends_on = [
-    helm_release.cert-manager,
-    kubernetes_secret.cert-manager-cloudflare-api
-  ]
+  depends_on = [helm_release.cert-manager, kubernetes_secret.cert-manager-cloudflare-api]
 
   yaml_body = <<YAML
     apiVersion: cert-manager.io/v1

@@ -12,7 +12,6 @@ resource "helm_release" "whoami" {
   version    = "2.5.5"
 
   depends_on = [
-    helm_release.nginx-ingress-controller,
     kubernetes_namespace.whoami
   ]
 
