@@ -1,0 +1,62 @@
+---
+- name: Check if docker config exists
+  ansible.builtin.stat:
+    path: "{{ ipv6nat_docker_daemon_config_path }}"
+  register: stats_daemon_config_path
+
+- name: Create daemon config
+  ansible.builtin.copy:
+    dest: "{{ ipv6nat_docker_daemon_config_path }}"
+    content: >
+      {
+        "ipv6": true,
+        "fixed-cidr-v6": "{{ ipv6nat_docker_ipv6_subnet }}"
+      }
+  notify: Restart docker
+  become: true
+  when: not stats_daemon_config_path.stat.exists
+
+- name: Edit daemon config
+  when: stats_daemon_config_path.stat.exists
+  block:
+    - name: Get content of daemons.json
+      ansible.builtin.shell:
+        cmd: "cat {{ ipv6nat_docker_daemon_config_path }}"
+      become: true
+      register: output_daemons
+
+    - name: Get current daemon config
+      set_fact:
+        daemon_config: "{{ output_daemons.stdout | from_json }}"
+      become: true
+
+    - name: Set daemon config ipv6
+      set_fact:
+        daemon_config: "{{ daemon_config | combine ({ 'ipv6' : true }) }}"
+
+    - name: Set daemon config ipv6 subnet
+      set_fact:
+        daemon_config: "{{ daemon_config | combine ({ 'fixed-cidr-v6' : ipv6nat_docker_ipv6_subnet }) }}"
+
+    - name: Save config
+      ansible.builtin.copy:
+        dest: "{{ ipv6nat_docker_daemon_config_path }}"
+        content: "{{ daemon_config | to_json }}"
+      notify: Restart docker
+      become: true
+
+- name: Make sure the ipv6nat container is created and running
+  docker_container:
+    name: "{{ ipv6nat_container_name }}"
+    image: "{{ ipv6nat_container_image }}"
+    pull: true
+    network_mode: "host"
+    capabilities:
+      - net_admin
+      - sys_module
+    state: "{{ ipv6nat_container_state }}"
+    env: "{{ ipv6nat_container_env }}"
+    volumes: []
+    restart_policy: "{{ ipv6nat_container_restart_policy }}"
+    labels: "{{ ipv6nat_container_labels }}"
+  become: true

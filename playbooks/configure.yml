@@ -1,7 +1,6 @@
 ---
 - name: Configure systems
   hosts: all
-  become: true
   tasks:
     - name: Include basic-config role
       include_role:
@@ -23,20 +22,28 @@
     - name: Include unattended-upgrades role
       include_role:
         name: unattended-upgrades
-      when: ansible_distribution in ["debian", "ubuntu"]
+        apply:
+          become: true
+      when: ansible_distribution in ["Debian", "Ubuntu"]
 
     - name: Include update system role
       include_role:
         name: update
 
+- name: Configure docker
+  hosts: all
+  tasks:
     - name: Get architecture
       ansible.builtin.shell:
         cmd: dpkg --print-architecture
       register: architecture
+      when: docker is defined and docker
 
     - name: Include docker role
       include_role:
         name: geerlingguy.docker
+        apply:
+          become: true
       when: docker is defined and docker
       vars:
         docker_apt_arch: "{{ architecture.stdout }}"
@@ -44,15 +51,17 @@
     - name: Install pip with docker package
       include_role:
         name: geerlingguy.pip
+        apply:
+          become: true
       when: docker is defined and docker
       vars:
         pip_install_packages:
           - name: docker
 
-    - name: Include docker-influxdb role
+    - name: Install ipv6nat
       include_role:
-        name: docker-influxdb
-      when: inventory_hostname in ["ap01"]
+        name: docker-ipv6nat
+      when: docker_ipv6nat is defined and docker_ipv6nat
 
 - name: Cloudflare dyndns
   hosts: cloud
@@ -60,6 +69,14 @@
     - name: Include docker-cloudflare-ddns role
       include_role:
         name: docker-cloudflare-ddns
+
+- name: InfluxDB
+  hosts: all
+  tasks:
+    - name: Include docker-influxdb role
+      include_role:
+        name: docker-influxdb
+      when: inventory_hostname in ["ap01"]
 
 - name: Wireguard
   hosts: cloud

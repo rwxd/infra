@@ -1,9 +1,22 @@
 ---
-- name: Make sure the cloudflare-ddns container is created and running
+- name: Make sure the cloudflare-ddns ipv4 container is created and running
   docker_container:
-    name: "{{ cloudflare_ddns_container_name }}"
+    name: "{{ cloudflare_ddns_container_name }}-ipv4"
     image: "{{ cloudflare_ddns_container_image }}"
     pull: true
     state: "{{ cloudflare_ddns_container_state }}"
-    env: "{{ cloudflare_ddns_container_env }}"
+    env: "{{ cloudflare_ddns_container_env_v4 }}"
     restart_policy: "{{ cloudflare_ddns_container_restart_policy }}"
+    network_mode: host
+  when: cloudflare_ddns_container_ipv4_record
+
+- name: Make sure the cloudflare-ddns ipv6 container is created and running
+  docker_container:
+    name: "{{ cloudflare_ddns_container_name }}-ipv6"
+    image: "{{ cloudflare_ddns_container_image }}"
+    pull: true
+    state: "{{ cloudflare_ddns_container_state }}"
+    env: "{{ cloudflare_ddns_container_env_v6 }}"
+    restart_policy: "{{ cloudflare_ddns_container_restart_policy }}"
+    network_mode: host
+  when: cloudflare_ddns_container_ipv6_record

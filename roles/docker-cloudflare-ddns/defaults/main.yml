@@ -8,7 +8,7 @@ cloudflare_ddns_container_api_key: ""
 cloudflare_ddns_container_zone: ""
 cloudflare_ddns_container_subdomain: "ddns"
 cloudflare_ddns_container_proxied: "false"
-cloudflare_ddns_container_env:
+cloudflare_ddns_container_env_v4:
   "PUID": "{{ cloudflare_ddns_container_user_id | quote }}"
   "PGID": "{{ cloudflare_ddns_container_group_id | quote }}"
   "TZ": "{{ timezone | default('Europe/Berlin') | quote }}"
@@ -16,5 +16,17 @@ cloudflare_ddns_container_env:
   "ZONE": "{{ cloudflare_ddns_container_zone | quote }}"
   "SUBDOMAIN": "{{ cloudflare_ddns_container_subdomain | quote }}"
   "PROXIED": "{{ cloudflare_ddns_container_proxied | quote }}"
+  "RRTYPE": "{{ 'A' | quote }}"
+cloudflare_ddns_container_env_v6:
+  "PUID": "{{ cloudflare_ddns_container_user_id | quote }}"
+  "PGID": "{{ cloudflare_ddns_container_group_id | quote }}"
+  "TZ": "{{ timezone | default('Europe/Berlin') | quote }}"
+  "API_KEY": "{{ cloudflare_ddns_container_api_key | quote }}"
+  "ZONE": "{{ cloudflare_ddns_container_zone | quote }}"
+  "SUBDOMAIN": "{{ cloudflare_ddns_container_subdomain | quote }}"
+  "PROXIED": "{{ cloudflare_ddns_container_proxied | quote }}"
+  "RRTYPE": "{{ 'AAAA' | quote }}"
 cloudflare_ddns_container_state: "started"
 cloudflare_ddns_container_restart_policy: "unless-stopped"
+cloudflare_ddns_container_ipv4_record: true
+cloudflare_ddns_container_ipv6_record: true

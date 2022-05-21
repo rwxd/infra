@@ -1,0 +1,14 @@
+---
+ipv6nat_container_name: ipv6nat
+ipv6nat_container_image: docker.io/robbertkl/ipv6nat:latest
+ipv6nat_docker_ipv6_subnet: "2001:db8:1::/64"
+ipv6nat_container_state: started
+ipv6nat_container_user: ipv6nat
+ipv6nat_container_user_id: 1000
+ipv6nat_container_group_id: 1000
+ipv6nat_container_env: {}
+ipv6nat_container_dir: "/var/containers/ipv6nat/"
+ipv6nat_container_configs_dir: "{{ ipv6nat_container_dir }}/configs/"
+ipv6nat_container_restart_policy: unless-stopped
+ipv6nat_container_labels: {}
+ipv6nat_docker_daemon_config_path: "/etc/docker/daemon.json"
