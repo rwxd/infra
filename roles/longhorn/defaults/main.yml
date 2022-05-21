@@ -1,0 +1,6 @@
+---
+# disks can be seen via "lsblk -f"
+# e.g. sda or sdb
+longhorn_disk_name: ""
+longhorn_wipe_disk: false
+longhorn_storage_path: "/var/lib/longhorn"

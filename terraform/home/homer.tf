@@ -99,14 +99,27 @@ resource "helm_release" "homer" {
                       subtitle: "Z-Wave"
                       url: "???"
                       target: "_blank" # optional html tag target attribute
+                - name: "Monitoring"
+                  icon: "fas fa-heartbeat"
+                  items:
+                    - name: "Uptime Kuma"
+                      icon: "fas fa-house-signal"
+                      subtitle: "Uptime monitoring"
+                      url: "https://uptime-kuma.k3s.rwxd.eu"
+                      target: "_blank" # optional html tag target attribute
+                    - name: "Longhorn"
+                      icon: "fas fa-house-signal"
+                      subtitle: "Cluster storage overview"
+                      url: "https://longhorn.k3s.rwxd.eu"
+                      target: "_blank" # optional html tag target attribute
+                - name: "Stuff"
+                  icon: "fas fa-droplet"
+                  items:
                     - name: "whoami"
                       icon: "fas fa-browser"
                       subtitle: "HTTP Debuging"
                       url: "https://whoami.k3s.rwxd.eu"
                       target: "_blank" # optional html tag target attribute
-                - name: "Monitoring"
-                  icon: "fas fa-heartbeat"
-                  items: []
             YAML
           }
         }

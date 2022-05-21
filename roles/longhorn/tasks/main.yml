@@ -1,0 +1,69 @@
+---
+- name: Assert disk uuid is set
+  assert:
+    that: longhorn_disk_name is defined and longhorn_disk_name != ""
+
+- name: Set device
+  set_fact:
+    longhorn_device: "/dev/{{ longhorn_disk_name }}"
+
+- name: Check longhorn dir
+  ansible.builtin.stat:
+    path: "{{ longhorn_storage_path }}"
+  register: stats_storage_path
+
+# - name: Read device information (always use unit when probing)
+#   community.general.parted:
+#     device: "{{ longhorn_device }} unit=MiB"
+#   register: sdb_info
+#   become: true
+#
+# - name: Wipe disk
+#   community.general.parted:
+#     device: "{{ longhorn_device }}"
+#     number: "{{ item.num }}"
+#     state: absent
+#   become: true
+#   loop: "{{ sdb_info.partitions }}"
+#   when: longhorn_wipe_disk
+
+- name: Reconfigure disk
+  when: longhorn_wipe_disk or not stats_storage_path.stat.exists
+  block:
+    - name: Wipe disk
+      ansible.builtin.shell:
+        cmd: "wipefs -a {{ longhorn_device }}"
+      become: true
+
+    - name: Reformat
+      ansible.builtin.shell:
+        cmd: "mkfs.ext4 {{ longhorn_device }}"
+      become: true
+      vars:
+        ansible_command_timeout: 360
+
+    - name: Create longhorn storage path
+      ansible.builtin.file:
+        path: "{{ longhorn_storage_path }}"
+        state: directory
+      become: true
+
+    - name: Get UUID of disk
+      ansible.builtin.shell:
+        cmd: "blkid -s UUID -o value {{ longhorn_device }}"
+      register: output_uuid_longhorn_device
+      become: true
+
+    - name: Mount disk to longhorn storage path
+      ansible.posix.mount:
+        path: "{{ longhorn_storage_path }}"
+        src: "UUID={{ output_uuid_longhorn_device.stdout.replace('\n', '') }}"
+        fstype: ext4
+        state: mounted
+      become: true
+
+- name: Install required packages
+  ansible.builtin.package:
+    name: open-iscsi
+    state: latest
+  become: true

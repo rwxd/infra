@@ -25,7 +25,7 @@
         name: unattended-upgrades
       when: ansible_distribution in ["debian", "ubuntu"]
 
-    - name: Include update system rol
+    - name: Include update system role
       include_role:
         name: update
 
@@ -103,6 +103,13 @@
       ansible.builtin.file:
         path: "{{ temp_path }}"
         state: absent
+
+- name: Configure longhorn
+  hosts: k3s-node*
+  tasks:
+    - name: Include longhorn role
+      include_role:
+        name: longhorn
 
 - name: Build k3s cluster
   hosts: ap01, k3s-node01, k3s-node02
