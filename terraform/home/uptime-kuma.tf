@@ -22,10 +22,10 @@ resource "helm_release" "uptime-kuma" {
       }
       persistence = {
         data = {
-          enabled   = true
-          mountPath = "/app/data"
+          enabled    = true
+          mountPath  = "/app/data"
           accessMode = "ReadWriteOnce"
-          size = "5Gi"
+          size       = "5Gi"
         }
       }
     })
