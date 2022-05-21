@@ -15,6 +15,9 @@ resource "helm_release" "longhorn" {
 
   values = [
     yamlencode({
+      persistence = {
+        defaultClassReplicaCount = 2
+      }
     })
   ]
 }
