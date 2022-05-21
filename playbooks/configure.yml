@@ -3,45 +3,45 @@
   hosts: all
   become: true
   tasks:
-    - name: set hostname
-      ansible.builtin.hostname:
-        name: "{{ inventory_hostname }}"
+    - name: Include basic-config role
+      include_role:
+        name: basic-config
 
-    - name: configure users
+    - name: Include users role
       include_role:
         name: users
 
-    - name: configure ssh-hardening
+    - name: Include ssh-hardening role
       include_role:
         name: ssh-hardening
 
-    - name: configure firewalld
+    - name: Include firewalld role
       include_role:
         name: firewalld
       when: firewalld is defined and firewalld
 
-    - name: configure unattended-upgrades
+    - name: Include unattended-upgrades role
       include_role:
         name: unattended-upgrades
       when: ansible_distribution in ["debian", "ubuntu"]
 
-    - name: update system
+    - name: Include update system rol
       include_role:
         name: update
 
-    - name: get architecture
+    - name: Get architecture
       ansible.builtin.shell:
         cmd: dpkg --print-architecture
       register: architecture
 
-    - name: install docker
+    - name: Include docker role
       include_role:
         name: geerlingguy.docker
       when: docker is defined and docker
       vars:
         docker_apt_arch: "{{ architecture.stdout }}"
 
-    - name: install pip with docker package
+    - name: Install pip with docker package
       include_role:
         name: geerlingguy.pip
       when: docker is defined and docker
@@ -49,7 +49,7 @@
         pip_install_packages:
           - name: docker
 
-    - name: configure influxdb
+    - name: Include docker-influxdb role
       include_role:
         name: docker-influxdb
       when: inventory_hostname in ["ap01"]
@@ -57,11 +57,11 @@
 - name: Cloudflare dyndns
   hosts: cloud
   tasks:
-    - name: Include cloudflare_ddns container
+    - name: Include docker-cloudflare-ddns role
       include_role:
         name: docker-cloudflare-ddns
 
-- name: Build wireguard containers
+- name: Wireguard
   hosts: cloud
   tasks:
     - name: Create local configuration directory
@@ -70,7 +70,7 @@
         state: directory
       delegate_to: localhost
 
-    - name: Include wireguard role
+    - name: Include docker-wireguard role
       include_role:
         name: docker-wireguard
 
