@@ -2,7 +2,7 @@
 - name: unattended-upgrades
   src: https://github.com/jnv/ansible-role-unattended-upgrades.git
   scm: git
-  version: v1.12.1
+  version: v1.12.2
 
 - name: geerlingguy.docker
   src: https://github.com/geerlingguy/ansible-role-docker.git
