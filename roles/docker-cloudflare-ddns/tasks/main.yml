@@ -7,7 +7,6 @@
     state: "{{ cloudflare_ddns_container_state }}"
     env: "{{ cloudflare_ddns_container_env_v4 }}"
     restart_policy: "{{ cloudflare_ddns_container_restart_policy }}"
-    network_mode: host
   when: cloudflare_ddns_container_ipv4_record
 
 - name: Make sure the cloudflare-ddns ipv6 container is created and running

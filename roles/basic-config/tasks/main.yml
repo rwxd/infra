@@ -2,4 +2,11 @@
 - name: Set hostname
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
+  become: true
   notify: Reboot
+
+- name: Disable cloud config
+  ansible.builtin.file:
+    path: "/etc/cloud/cloud-init.disabled"
+    state: touch
+  become: true
