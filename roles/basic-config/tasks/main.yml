@@ -10,3 +10,6 @@
     path: "/etc/cloud/cloud-init.disabled"
     state: touch
   become: true
+
+- name: Flush handlers
+  meta: flush_handlers

@@ -6,6 +6,7 @@
     state=present
     backup=yes
   notify: restart sshd
+  become: true
 
 - name: Disable Root Login
   lineinfile: dest=/etc/ssh/sshd_config
@@ -14,6 +15,7 @@
     state=present
     backup=yes
   notify: restart sshd
+  become: true
 
 - name: Change Max Authentication Tries -> 10
   lineinfile: dest=/etc/ssh/sshd_config
@@ -22,6 +24,7 @@
     state=present
     backup=yes
   notify: restart sshd
+  become: true
 
 - name: Change PubkeyAuthentication -> yes
   lineinfile: dest=/etc/ssh/sshd_config
@@ -30,6 +33,7 @@
     state=present
     backup=yes
   notify: restart sshd
+  become: true
 
 - name: Change AuthenticationMethods -> publickey
   lineinfile: dest=/etc/ssh/sshd_config
@@ -38,6 +42,7 @@
     state=present
     backup=yes
   notify: restart sshd
+  become: true
 
 - name: Denying user pi and ubuntu
   lineinfile: dest=/etc/ssh/sshd_config
@@ -45,3 +50,4 @@
     line="DenyUsers pi, ubuntu"
     state=present
     backup=yes
+  become: true

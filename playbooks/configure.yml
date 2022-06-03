@@ -129,7 +129,7 @@
         name: longhorn
 
 - name: Build k3s cluster
-  hosts: ap01, k3s-node01, k3s-node02
+  hosts: k3s-control01, k3s-node01, k3s-node02
   vars:
     k3s_build_cluster: true
     k3s_become: true
