@@ -7,4 +7,4 @@ collections:
     version: 2.6.0
 
   - name: community.general
-    version: 5.0.1
+    version: 5.0.2
