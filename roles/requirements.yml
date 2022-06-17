@@ -17,4 +17,4 @@
 - name: ansible-role-k3s
   src: git@github.com:PyratLabs/ansible-role-k3s.git
   scm: git
-  version: v3.1.2
+  version: v3.2.0
