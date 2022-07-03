@@ -9,7 +9,7 @@ resource "helm_release" "uptime-kuma" {
   repository = "https://k8s-at-home.com/charts/"
   chart      = "uptime-kuma"
   namespace  = "uptime-kuma"
-  version    = "1.3.3"
+  version    = "1.3.5"
 
   depends_on = [
     kubernetes_namespace.uptime-kuma
