@@ -1,7 +1,7 @@
 ---
 - name: Create wireguard directory
   ansible.builtin.file:
-    path: "{{  wireguard_container_dir}}"
+    path: "{{  wireguard_container_dir }}"
     owner: "{{ wireguard_container_user_id }}"
     group: "{{ wireguard_container_group_id }}"
     recurse: true
@@ -10,7 +10,7 @@
 
 - name: Create wireguard configs directory
   ansible.builtin.file:
-    path: "{{  wireguard_container_configs_dir}}"
+    path: "{{  wireguard_container_configs_dir }}"
     owner: "{{ wireguard_container_user_id }}"
     group: "{{ wireguard_container_group_id }}"
     recurse: true

@@ -1,0 +1,30 @@
+---
+traefik_container_name: traefik
+traefik_container_image: docker.io/traefik:v2.8.0
+traefik_container_ports:
+  - "443:443"
+  - "80:80"
+  - "8000:8080"
+traefik_container_state: started
+traefik_container_user_id: 1000
+traefik_container_group_id: 1000
+traefik_container_log_level: "DEBUG"
+traefik_container_env_custom: {}
+traefik_container_env:
+  "PUID": "{{ traefik_container_user_id | quote }}"
+  "PGID": "{{ traefik_container_group_id | quote }}"
+  "TZ": "{{ traefik_container_timezone | default('Europe/Berlin') | quote }}"
+traefik_container_user: traefik
+traefik_container_restart_policy: unless-stopped
+traefik_container_dir: "/var/containers/traefik/"
+traefik_container_certs_dir: "{{ traefik_container_dir }}/certs"
+traefik_container_labels: {}
+traefik_container_labels_custom: {}
+traefik_container_commands:
+  - "--providers.docker.exposedByDefault=false"
+  - "--log.level={{ traefik_container_log_level }}"
+  - "--entryPoints.http.address=:80"
+  - "--entryPoints.https.address=:443"
+traefik_container_commands_custom: []
+traefik_container_networks:
+  - name: proxy

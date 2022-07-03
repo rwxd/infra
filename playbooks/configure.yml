@@ -3,80 +3,117 @@
   hosts: all
   tasks:
     - name: Include basic-config role
-      include_role:
+      ansible.builtin.include_role:
         name: basic-config
 
     - name: Include users role
-      include_role:
+      ansible.builtin.include_role:
         name: users
 
     - name: Include ssh-hardening role
-      include_role:
+      ansible.builtin.include_role:
         name: ssh-hardening
 
     - name: Include firewalld role
-      include_role:
+      ansible.builtin.include_role:
         name: firewalld
       when: firewalld is defined and firewalld
 
-    - name: Include unattended-upgrades role
-      include_role:
-        name: unattended-upgrades
+    - name: Include ansible-disk role
+      ansible.builtin.include_role:
+        name: ansible-disk
         apply:
           become: true
-      when: ansible_distribution in ["Debian", "Ubuntu"]
+      when: disk_additional_disks is defined
 
-    - name: Include update system role
-      include_role:
-        name: update
+    # - name: Include unattended-upgrades role
+    #   ansible.builtin.include_role:
+    #     name: unattended-upgrades
+    #     apply:
+    #       become: true
+    #   when: ansible_distribution in ["Debian", "Ubuntu"]
+    #
+    # - name: Include update system role
+    #   ansible.builtin.include_role:
+    #     name: update
 
-- name: Configure docker
+# - name: Configure docker
+#   hosts: all
+#   tasks:
+#     - name: Get architecture
+#       ansible.builtin.command:
+#         cmd: dpkg --print-architecture
+#       register: architecture
+#       when: docker is defined and docker
+#
+#     - name: Include docker role
+#       ansible.builtin.include_role:
+#         name: geerlingguy.docker
+#         apply:
+#           become: true
+#       when: docker is defined and docker
+#       vars:
+#         docker_apt_arch: "{{ architecture.stdout }}"
+#
+#     - name: Install pip with docker package
+#       ansible.builtin.include_role:
+#         name: geerlingguy.pip
+#         apply:
+#           become: true
+#       when: docker is defined and docker
+#       vars:
+#         pip_install_packages:
+#           - name: docker
+#
+#     - name: Install ipv6nat
+#       ansible.builtin.include_role:
+#         name: docker-ipv6nat
+#       when: docker_ipv6nat is defined and docker_ipv6nat
+
+- name: Configure podman
   hosts: all
   tasks:
-    - name: Get architecture
-      ansible.builtin.shell:
-        cmd: dpkg --print-architecture
-      register: architecture
-      when: docker is defined and docker
+    - name: Include podman role
+      ansible.builtin.include_role:
+        name: podman
+      when: podman is defined
 
-    - name: Include docker role
-      include_role:
-        name: geerlingguy.docker
+- name: Configure traefik
+  hosts: storage, ap01
+  tasks:
+    - name: Include traefik role
+      ansible.builtin.include_role:
+        name: docker-traefik
         apply:
-          become: true
-      when: docker is defined and docker
-      vars:
-        docker_apt_arch: "{{ architecture.stdout }}"
+          tags: traefik
+      tags: traefik
 
-    - name: Install pip with docker package
-      include_role:
-        name: geerlingguy.pip
+- name: Configure actualbudget
+  hosts: ap01
+  tasks:
+    - name: Include actualbudget role
+      ansible.builtin.include_role:
+        name: docker-actualbudget
         apply:
-          become: true
-      when: docker is defined and docker
-      vars:
-        pip_install_packages:
-          - name: docker
+          tags: actualbudget
+      tags: actualbudget
 
-    - name: Install ipv6nat
-      include_role:
-        name: docker-ipv6nat
-      when: docker_ipv6nat is defined and docker_ipv6nat
+- name: Configure transmission-openvpn
+  hosts: storage
+  tasks:
+    - name: Include transmission-openvpn role
+      ansible.builtin.include_role:
+        name: docker-transmission-openvpn
+        apply:
+          tags: transmission
+      tags: transmission
 
 - name: Cloudflare dyndns
   hosts: cloud
   tasks:
     - name: Include docker-cloudflare-ddns role
-      include_role:
+      ansible.builtin.include_role:
         name: docker-cloudflare-ddns
-
-- name: InfluxDB
-  hosts: all
-  tasks:
-    - name: Include docker-influxdb role
-      include_role:
-        name: docker-influxdb
-      when: inventory_hostname in ["ap01"]
 
 - name: Wireguard
   hosts: cloud
@@ -84,16 +121,18 @@
     - name: Create local configuration directory
       ansible.builtin.file:
         path: "../configs/wireguard/{{ inventory_hostname }}"
+        mode: 0640
         state: directory
       delegate_to: localhost
 
     - name: Include docker-wireguard role
-      include_role:
+      ansible.builtin.include_role:
         name: docker-wireguard
 
     - name: Get current user
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: whoami
+      changed_when: false
       register: whoami
 
     - name: Set copy facts
@@ -106,6 +145,7 @@
         src: "{{ wireguard_container_configs_dir }}"
         dest: "{{ temp_path }}"
         remote_src: true
+        mode: 0640
         owner: "{{ whoami }}"
         group: "{{ whoami }}"
       become: true
@@ -121,50 +161,51 @@
         path: "{{ temp_path }}"
         state: absent
 
-- name: Configure longhorn
-  hosts: k3s-node*
-  tasks:
-    - name: Include longhorn role
-      include_role:
-        name: longhorn
+# - name: Configure longhorn
+#   hosts: k3s-node*
+#   tasks:
+#     - name: Include longhorn role
+#       ansible.builtin.include_role:
+#         name: longhorn
 
-- name: Build k3s cluster
-  hosts: k3s-control01, k3s-node01, k3s-node02
-  vars:
-    k3s_build_cluster: true
-    k3s_become: true
-    k3s_state: installed
-    k3s_server:
-      disable:
-        - traefik
-  tasks:
-    - name: Install required packages
-      ansible.builtin.apt:
-        name: linux-modules-extra-raspi
-        state: present
-      register: installation
-      become: true
-
-    - name: Reboot
-      ansible.builtin.reboot:
-        reboot_timeout: 600
-      when: installation.changed
-      become: true
-
-    - name: Include k3s role
-      include_role:
-        name: ansible-role-k3s
-
-    - name: Create kubeconfig directory
-      ansible.builtin.file:
-        path: ../kubeconfigs
-        state: directory
-      delegate_to: localhost
-
-    - name: Get kubeconfig from master
-      ansible.builtin.fetch:
-        src: /etc/rancher/k3s/k3s.yaml
-        dest: "../kubeconfigs/{{ inventory_hostname }}"
-        flat: true
-      become: true
-      when: k3s_control_node is defined and k3s_control_node
+# - name: Build k3s cluster
+#   hosts: k3s-control01, k3s-node01, k3s-node02
+#   vars:
+#     k3s_build_cluster: true
+#     k3s_become: true
+#     k3s_state: installed
+#     k3s_server:
+#       disable:
+#         - traefik
+#   tasks:
+#     - name: Install required packages
+#       ansible.builtin.apt:
+#         name: linux-modules-extra-raspi
+#         state: present
+#       register: installation
+#       become: true
+#
+#     - name: Reboot
+#       ansible.builtin.reboot:
+#         reboot_timeout: 600
+#       when: installation.changed
+#       become: true
+#
+#     - name: Include k3s role
+#       ansible.builtin.include_role:
+#         name: ansible-role-k3s
+#
+#     - name: Create kubeconfig directory
+#       ansible.builtin.file:
+#         path: ../kubeconfigs
+#         mode: 0640
+#         state: directory
+#       delegate_to: localhost
+#
+#     - name: Get kubeconfig from master
+#       ansible.builtin.fetch:
+#         src: /etc/rancher/k3s/k3s.yaml
+#         dest: "../kubeconfigs/{{ inventory_hostname }}"
+#         flat: true
+#       become: true
+#       when: k3s_control_node is defined and k3s_control_node

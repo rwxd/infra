@@ -1,0 +1,45 @@
+---
+- name: Create actualbudget directory
+  ansible.builtin.file:
+    path: "{{ actualbudget_container_dir }}"
+    owner: "{{ actualbudget_container_user_id }}"
+    group: "{{ actualbudget_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create actualbudget data directory
+  ansible.builtin.file:
+    path: "{{ actualbudget_container_data_dir }}"
+    owner: "{{ actualbudget_container_user_id }}"
+    group: "{{ actualbudget_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ actualbudget_container_networks }}"
+
+- name: Make sure the actualbudget container is created and running
+  docker_container:
+    name: "{{ actualbudget_container_name }}"
+    image: "{{ actualbudget_container_image }}"
+    pull: true
+    state: "{{ actualbudget_container_state }}"
+    env: "{{ actualbudget_container_env }}"
+    ports: "{{ actualbudget_container_ports }}"
+    volumes:
+      - "{{ actualbudget_container_data_dir }}:/data"
+    networks: "{{ actualbudget_container_networks }}"
+    restart_policy: "{{ actualbudget_container_restart_policy }}"
+    labels: "{{ actualbudget_container_labels }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true

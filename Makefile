@@ -8,6 +8,7 @@ setup: ## setup required things
 	python3 -m pip install -U -r requirements-dev.txt
 	pre-commit install
 	pre-commit install-hooks
+	ansible-galaxy role install -f -r roles/requirements.yml
 
 puml-svg: ## render plantuml diagrams as svg
 	cd docs/

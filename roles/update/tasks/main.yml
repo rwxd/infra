@@ -2,6 +2,6 @@
 - name: Update all packages to their latest version
   ansible.builtin.apt:
     name: "*"
-    state: latest
+    state: latest # noqa package-latest
   become: true
   when: ansible_distribution in ["Debian", "Ubuntu"]

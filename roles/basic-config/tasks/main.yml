@@ -9,7 +9,20 @@
   ansible.builtin.file:
     path: "/etc/cloud/cloud-init.disabled"
     state: touch
+    owner: root
+    group: root
+    mode: 0644
+    modification_time: preserve
+    access_time: preserve
+  become: true
+  when: ansible_distribution in ["Ubuntu"]
+
+- name: Install some troubleshooting tools
+  ansible.builtin.package:
+    name:
+      - iotop
+    state: present
   become: true
 
 - name: Flush handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

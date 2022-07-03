@@ -18,3 +18,8 @@
   src: git@github.com:PyratLabs/ansible-role-k3s.git
   scm: git
   version: v3.1.2
+
+- name: ansible-disk
+  src: https://github.com/AerisCloud/ansible-disk.git
+  scm: git
+  version: v.2.6.3

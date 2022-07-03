@@ -1,53 +1,59 @@
 ---
 - name: Disable Password Authentication
-  lineinfile: dest=/etc/ssh/sshd_config
-    regexp="^PasswordAuthentication"
-    line="PasswordAuthentication no"
-    state=present
-    backup=yes
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication no"
+    state: present
+    backup: true
   notify: restart sshd
   become: true
 
 - name: Disable Root Login
-  lineinfile: dest=/etc/ssh/sshd_config
-    regexp="^PermitRootLogin"
-    line="PermitRootLogin no"
-    state=present
-    backup=yes
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin no"
+    state: present
+    backup: true
   notify: restart sshd
   become: true
 
 - name: Change Max Authentication Tries -> 10
-  lineinfile: dest=/etc/ssh/sshd_config
-    regexp="^MaxAuthTries"
-    line="MaxAuthTries 10"
-    state=present
-    backup=yes
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^MaxAuthTries"
+    line: "MaxAuthTries 10"
+    state: present
+    backup: true
   notify: restart sshd
   become: true
 
-- name: Change PubkeyAuthentication -> yes
-  lineinfile: dest=/etc/ssh/sshd_config
-    regexp="^PubkeyAuthentication"
-    line="PubkeyAuthentication yes"
-    state=present
-    backup=yes
+- name: Change PubkeyAuthentication -> true
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PubkeyAuthentication"
+    line: "PubkeyAuthentication yes"
+    state: present
+    backup: true
   notify: restart sshd
   become: true
 
 - name: Change AuthenticationMethods -> publickey
-  lineinfile: dest=/etc/ssh/sshd_config
-    regexp="^AuthenticationMethods"
-    line="AuthenticationMethods publickey"
-    state=present
-    backup=yes
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^AuthenticationMethods"
+    line: "AuthenticationMethods publickey"
+    state: present
+    backup: true
   notify: restart sshd
   become: true
 
 - name: Denying user pi and ubuntu
-  lineinfile: dest=/etc/ssh/sshd_config
-    regexp="^DenyUsers"
-    line="DenyUsers pi, ubuntu"
-    state=present
-    backup=yes
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^DenyUsers"
+    line: "DenyUsers pi, ubuntu"
+    state: present
+    backup: true
   become: true

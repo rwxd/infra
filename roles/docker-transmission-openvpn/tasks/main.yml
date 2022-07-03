@@ -1,0 +1,47 @@
+---
+- name: Create transmission_openvpn directory
+  ansible.builtin.file:
+    path: "{{ transmission_openvpn_container_dir }}"
+    owner: "{{ transmission_openvpn_container_user_id }}"
+    group: "{{ transmission_openvpn_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create transmission_openvpn data directory
+  ansible.builtin.file:
+    path: "{{ transmission_openvpn_container_data_dir }}"
+    owner: "{{ transmission_openvpn_container_user_id }}"
+    group: "{{ transmission_openvpn_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ transmission_openvpn_container_networks }}"
+
+- name: Make sure the transmission_openvpn container is created and running
+  docker_container:
+    name: "{{ transmission_openvpn_container_name }}"
+    image: "{{ transmission_openvpn_container_image }}"
+    pull: true
+    capabilities:
+      - net_admin
+    state: "{{ transmission_openvpn_container_state }}"
+    env: "{{ transmission_openvpn_container_env }}"
+    ports: "{{ transmission_openvpn_container_ports }}"
+    volumes:
+      - "{{ transmission_openvpn_container_data_dir }}:/data"
+    networks: "{{ transmission_openvpn_container_networks }}"
+    restart_policy: "{{ transmission_openvpn_container_restart_policy }}"
+    labels: "{{ transmission_openvpn_container_labels }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true
