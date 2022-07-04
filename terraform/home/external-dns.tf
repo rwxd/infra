@@ -29,5 +29,3 @@ resource "helm_release" "external-dns" {
     })
   ]
 }
-
-
