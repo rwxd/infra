@@ -3,7 +3,6 @@
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
   become: true
-  notify: Reboot
 
 - name: Check for cloud dir
   ansible.builtin.stat:
