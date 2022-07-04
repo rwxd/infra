@@ -1,0 +1,36 @@
+---
+- name: Determine ca host
+  include_tasks: prepare_ca.yml
+  when: nebula_ca_host is not defined
+
+- name: Get lighthouse public ip
+  include_tasks: prepare_lighthouse_ip.yml
+  when: >
+    nebula_is_lighthouse
+    and (nebula_public_ipv4 is not defined
+      or nebula_public_ipv6 is not defined)
+
+- name: Prepare host
+  include_tasks: prepare_host.yml
+
+- name: Install nebula
+  include_tasks: install.yml
+
+
+# - name: Generate nebula's config
+#   ansible.builtin.template:
+#     src: templates/config.yml.j2
+#     dest: "{{ nebula_conf_path }}"
+#     owner: nebula
+#     group: nebula
+#     mode: "0644"
+#
+# - name: Set Nebula service
+#   ansible.builtin.template:
+#     src: templates/nebula.service.j2
+#     dest: /etc/systemd/system/nebula.service
+#     owner: root
+#     group: root
+#     mode: "0755"
+#   notify:
+#     - "Start Nebula node service"

@@ -1,0 +1,18 @@
+---
+- name: Get the public IPv4 of the lighthouse
+  community.general.ipify_facts:
+    api_url: https://api.ipify.org
+
+- name: Set nebula_public_ipv4 fact
+  ansible.builtin.set_fact:
+    nebula_public_ipv4: "{{ ansible_facts.ipify_public_ip }}"
+  when: nebula_public_ipv4 is not defined
+
+- name: Get the public IPv6 of the lighthouse
+  community.general.ipify_facts:
+    api_url: https://api64.ipify.org
+
+- name: Set nebula_public_ipv6 fact
+  ansible.builtin.set_fact:
+    nebula_public_ipv6: "{{ ansible_facts.ipify_public_ip }}"
+  when: nebula_public_ipv6 is not defined

@@ -1,0 +1,58 @@
+---
+- name: Check if nebula is installed
+  ansible.builtin.stat:
+    path: "{{ nebula_bin_path }}"
+  register: nebula_stat
+  become: true
+
+- name: Get current nebula version
+  ansible.builtin.command: "{{ nebula_bin_path }} -version"
+  register: output_nebula_version
+  when: nebula_stat.stat.exists
+  changed_when: false
+  become: true
+
+- name: Install nebula
+  when: >
+    not nebula_stat.stat.exists
+    or nebula_version not in output_nebula_version.stdout
+  block:
+    - name: Create temp dir
+      ansible.builtin.file:
+        path: "{{ nebula_temp_dir }}"
+        mode: 0700
+        state: directory
+
+    - name: "Download nebula version {{ nebula_version }}"
+      ansible.builtin.get_url:
+        url: "https://github.com/slackhq/nebula/releases/download/v{{ nebula_version }}/nebula-{{ nebula_os }}-{{ nebula_arch }}.tar.gz"
+        dest: "{{ nebula_temp_dir }}/nebula.tar.gz"
+        mode: 0740
+
+    - name: Extract nebula
+      ansible.builtin.unarchive:
+        src: "{{ nebula_temp_dir }}/nebula.tar.gz"
+        dest: "{{ nebula_temp_dir }}"
+        remote_src: true
+
+    - name: Copy nebula binary
+      ansible.builtin.copy:
+        src: "{{ nebula_temp_dir }}/nebula"
+        dest: "{{ nebula_bin_path }}"
+        remote_src: true
+        mode: "0755"
+      become: true
+
+    - name: Copy nebula-cert binary
+      ansible.builtin.copy:
+        src: "{{ nebula_temp_dir }}/nebula"
+        dest: "{{ nebula_cert_bin_path }}"
+        remote_src: true
+        mode: "0755"
+      become: true
+
+    - name: Remove temp dir
+      ansible.builtin.file:
+        path: "{{ nebula_temp_dir }}"
+        mode: 0700
+        state: absent
