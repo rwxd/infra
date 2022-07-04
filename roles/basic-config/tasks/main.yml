@@ -5,6 +5,12 @@
   become: true
   notify: Reboot
 
+- name: Check for cloud dir
+  ansible.builtin.stat:
+    path: "/etc/cloud"
+  register: cloud_dir
+  become: true
+
 - name: Disable cloud config
   ansible.builtin.file:
     path: "/etc/cloud/cloud-init.disabled"
@@ -15,7 +21,9 @@
     modification_time: preserve
     access_time: preserve
   become: true
-  when: ansible_distribution in ["Ubuntu"]
+  when: >
+    ansible_distribution in ["Ubuntu"]
+    and cloud_dir.stat.exists
 
 - name: Install some troubleshooting tools
   ansible.builtin.package:
