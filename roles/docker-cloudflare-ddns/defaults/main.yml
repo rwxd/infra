@@ -4,7 +4,7 @@ cloudflare_ddns_container_image: "oznu/cloudflare-ddns:latest"
 cloudflare_ddns_container_user_id: 1000
 cloudflare_ddns_container_group_id: 1000
 cloudflare_ddns_container_user: cloudflare_ddns
-cloudflare_ddns_container_api_key: ""
+cloudflare_ddns_container_api_token: ""
 cloudflare_ddns_container_zone: ""
 cloudflare_ddns_container_subdomain: "ddns"
 cloudflare_ddns_container_proxied: "false"
@@ -12,7 +12,7 @@ cloudflare_ddns_container_env_v4:
   "PUID": "{{ cloudflare_ddns_container_user_id | quote }}"
   "PGID": "{{ cloudflare_ddns_container_group_id | quote }}"
   "TZ": "{{ cloudflare_ddns_container_timezone | default('Europe/Berlin') | quote }}"
-  "API_KEY": "{{ cloudflare_ddns_container_api_key | quote }}"
+  "API_KEY": "{{ cloudflare_ddns_container_api_token | quote }}"
   "ZONE": "{{ cloudflare_ddns_container_zone | quote }}"
   "SUBDOMAIN": "{{ cloudflare_ddns_container_subdomain | quote }}"
   "PROXIED": "{{ cloudflare_ddns_container_proxied | quote }}"
@@ -21,7 +21,7 @@ cloudflare_ddns_container_env_v6:
   "PUID": "{{ cloudflare_ddns_container_user_id | quote }}"
   "PGID": "{{ cloudflare_ddns_container_group_id | quote }}"
   "TZ": "{{ cloudflare_ddns_container_timezone | default('Europe/Berlin') | quote }}"
-  "API_KEY": "{{ cloudflare_ddns_container_api_key | quote }}"
+  "API_KEY": "{{ cloudflare_ddns_container_api_token | quote }}"
   "ZONE": "{{ cloudflare_ddns_container_zone | quote }}"
   "SUBDOMAIN": "{{ cloudflare_ddns_container_subdomain | quote }}"
   "PROXIED": "{{ cloudflare_ddns_container_proxied | quote }}"
