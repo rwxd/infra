@@ -1,0 +1,19 @@
+---
+actualbudget_container_name: actualbudget
+actualbudget_container_image: docker.io/jlongster/actual-server:1.0.3-alpine
+actualbudget_container_ports:
+  - "5006:5006"
+actualbudget_container_state: started
+actualbudget_container_user_id: 1000
+actualbudget_container_group_id: 1000
+actualbudget_container_env:
+  "PUID": "{{ actualbudget_container_user_id | quote }}"
+  "PGID": "{{ actualbudget_container_group_id | quote }}"
+  "TZ": "{{ actualbudget_container_timezone | default('Europe/Berlin') | quote }}"
+actualbudget_container_user: actualbudget
+actualbudget_container_restart_policy: unless-stopped
+actualbudget_container_dir: "/var/containers/actualbudget/"
+actualbudget_container_data_dir: "{{ actualbudget_container_dir }}/data"
+actualbudget_container_labels: {}
+actualbudget_container_networks:
+  - name: proxy

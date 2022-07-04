@@ -10,7 +10,7 @@ wireguard_container_peers: []
 wireguard_container_env:
   "PUID": "{{ wireguard_container_user_id | quote }}"
   "PGID": "{{ wireguard_container_group_id | quote }}"
-  "TZ": "{{ timezone | default('Europe/Berlin') | quote }}"
+  "TZ": "{{ wireguard_container_timezone | default('Europe/Berlin') | quote }}"
   "SERVERURL": "{{ wireguard_container_vpn_host | quote }}"
   "PEERS": "{{ ','.join(wireguard_container_peers) | quote }}"
 wireguard_container_dir: "/var/containers/wireguard/"

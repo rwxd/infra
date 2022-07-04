@@ -1,0 +1,29 @@
+---
+transmission_openvpn_container_name: transmission-openvpn
+transmission_openvpn_container_image: docker.io/haugene/transmission-openvpn:latest
+transmission_openvpn_container_ports:
+  - "9091:9091"
+transmission_openvpn_container_state: started
+transmission_openvpn_container_user_id: 1000
+transmission_openvpn_container_group_id: 1000
+transmission_openvpn_container_openvpn_provider: ""
+transmission_openvpn_container_openvpn_config: ""
+transmission_openvpn_container_openvpn_username: ""
+transmission_openvpn_container_openvpn_password: ""
+transmission_openvpn_container_openvpn_local_network: "192.168.0.0/16"
+transmission_openvpn_container_env:
+  "PUID": "{{ transmission_openvpn_container_user_id | quote }}"
+  "PGID": "{{ transmission_openvpn_container_group_id | quote }}"
+  "TZ": "{{ transmission_openvpn_container_timezone | default('Europe/Berlin') | quote }}"
+  "OPENVPN_PROVIDER": "{{ transmission_openvpn_container_openvpn_provider | quote }}"
+  "OPENVPN_CONFIG": "{{ transmission_openvpn_container_openvpn_config | quote }}"
+  "OPENVPN_USERNAME": "{{ transmission_openvpn_container_openvpn_username | quote }}"
+  "OPENVPN_PASSWORD": "{{ transmission_openvpn_container_openvpn_password | quote }}"
+  "LOCAL_NETWORK": "{{ transmission_openvpn_container_openvpn_local_network | quote }}"
+transmission_openvpn_container_user: transmission_openvpn
+transmission_openvpn_container_restart_policy: unless-stopped
+transmission_openvpn_container_dir: "/var/containers/transmission-openvpn/"
+transmission_openvpn_container_data_dir: "{{ transmission_openvpn_container_dir }}/data"
+transmission_openvpn_container_labels: {}
+transmission_openvpn_container_networks:
+  - name: proxy

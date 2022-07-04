@@ -1,17 +1,17 @@
 ---
 - name: Combine users with host_users
-  set_fact:
+  ansible.builtin.set_fact:
     combined_users: "{{ users + host_users | default([]) }}"
 
 - name: Combine user groups
-  set_fact:
+  ansible.builtin.set_fact:
     user_groups: "{{ item.groups + user_groups | default([]) }}"
   become: true
   with_items: "{{ combined_users }}"
-  when: "{{ item.groups is defined }}"
+  when: item.groups is defined
 
 - name: Ensure groups are present
-  group:
+  ansible.builtin.group:
     name: "{{ item }}"
     state: present
   become: true

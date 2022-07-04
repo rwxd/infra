@@ -1,0 +1,47 @@
+---
+- name: Create traefik directory
+  ansible.builtin.file:
+    path: "{{ traefik_container_dir }}"
+    owner: "{{ traefik_container_user_id }}"
+    group: "{{ traefik_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create traefik certs directory
+  ansible.builtin.file:
+    path: "{{ traefik_container_certs_dir }}"
+    owner: "{{ traefik_container_user_id }}"
+    group: "{{ traefik_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ traefik_container_networks }}"
+
+- name: Make sure the traefik container is created and running
+  docker_container:
+    name: "{{ traefik_container_name }}"
+    image: "{{ traefik_container_image }}"
+    pull: true
+    state: "{{ traefik_container_state }}"
+    env: "{{ traefik_container_env | combine(traefik_container_env_custom) }}"
+    ports: "{{ traefik_container_ports }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ traefik_container_certs_dir }}:/certs/"
+    networks: "{{ traefik_container_networks }}"
+    restart_policy: "{{ traefik_container_restart_policy }}"
+    labels: "{{ traefik_container_labels | combine(traefik_container_labels_custom) }}"
+    command: "{{ traefik_container_commands + traefik_container_commands_custom }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true

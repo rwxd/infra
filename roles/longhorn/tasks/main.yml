@@ -1,10 +1,10 @@
 ---
 - name: Assert disk uuid is set
-  assert:
+  ansible.builtin.assert:
     that: longhorn_disk_name is defined and longhorn_disk_name != ""
 
 - name: Set device
-  set_fact:
+  ansible.builtin.set_fact:
     longhorn_device: "/dev/{{ longhorn_disk_name }}"
 
 - name: Check longhorn dir
@@ -31,26 +31,30 @@
   when: longhorn_wipe_disk or not stats_storage_path.stat.exists
   block:
     - name: Wipe disk
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "wipefs -a {{ longhorn_device }}"
+      when: true
       become: true
 
     - name: Reformat
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "mkfs.ext4 {{ longhorn_device }}"
       become: true
+      when: true
       vars:
         ansible_command_timeout: 360
 
     - name: Create longhorn storage path
       ansible.builtin.file:
         path: "{{ longhorn_storage_path }}"
+        mode: 0640
         state: directory
       become: true
 
     - name: Get UUID of disk
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "blkid -s UUID -o value {{ longhorn_device }}"
+      when: true
       register: output_uuid_longhorn_device
       become: true
 
@@ -65,5 +69,5 @@
 - name: Install required packages
   ansible.builtin.package:
     name: open-iscsi
-    state: latest
+    state: present
   become: true

@@ -1,0 +1,14 @@
+---
+skip_list:
+  - meta-incorrect
+  - meta-no-info
+  - meta-no-tags
+  - meta-video-links
+  - role-name
+exclude_paths:
+  - roles/ansible-disk/
+  - roles/ansible-role-k3s/
+  - roles/unattended-upgrades/
+  - roles/geerlingguy.docker/
+  - roles/geerlingguy.pip/
+  - inventory.yml

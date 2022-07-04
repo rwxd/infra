@@ -5,4 +5,3 @@ provider "helm" {
 
 provider "kubernetes" {
 }
-

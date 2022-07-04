@@ -1,0 +1,9 @@
+---
+# These settings are synced to GitHub by https://probot.github.io/apps/settings/
+
+_extends: gh-templates:.github/common-settings.yml
+
+repository:
+  name: "infra"
+  description: "Infrastructure configuration for Raspberry Pi's & K3s"
+  topics: "terraform, ansible, homelab"
