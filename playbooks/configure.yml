@@ -5,18 +5,30 @@
     - name: Include basic-config role
       ansible.builtin.include_role:
         name: basic-config
+        apply:
+          tags: config
+      tags: config
 
     - name: Include users role
       ansible.builtin.include_role:
         name: users
+        apply:
+          tags: config
+      tags: config
 
     - name: Include ssh-hardening role
       ansible.builtin.include_role:
         name: ssh-hardening
+        apply:
+          tags: config
+      tags: config
 
     - name: Include firewalld role
       ansible.builtin.include_role:
         name: firewalld
+        apply:
+          tags: config
+      tags: config
       when: firewalld is defined and firewalld
 
     - name: Include ansible-disk role
@@ -24,6 +36,8 @@
         name: ansible-disk
         apply:
           become: true
+          tags: config
+      tags: config
       when: disk_additional_disks is defined
 
     - name: Include unattended-upgrades role
@@ -31,135 +45,160 @@
         name: unattended-upgrades
         apply:
           become: true
+          tags: config
+      tags: config
+
       when: ansible_distribution in ["Debian", "Ubuntu"]
 
     - name: Include update system role
       ansible.builtin.include_role:
         name: update
+        apply:
+          tags: config
+      tags: config
 
-- name: Configure docker
-  hosts: all
-  tasks:
     - name: Get architecture
       ansible.builtin.command:
         cmd: dpkg --print-architecture
       register: architecture
       when: docker is defined and docker
+      tags: docker
 
     - name: Include docker role
       ansible.builtin.include_role:
         name: geerlingguy.docker
         apply:
           become: true
+          tags: docker
       when: docker is defined and docker
       vars:
         docker_apt_arch: "{{ architecture.stdout }}"
+      tags: docker
 
     - name: Install pip with docker package
       ansible.builtin.include_role:
         name: geerlingguy.pip
         apply:
           become: true
-      when: docker is defined and docker
+          tags: docker
       vars:
         pip_install_packages:
           - name: docker
+      when: docker is defined and docker
+      tags: docker
 
     - name: Install ipv6nat
       ansible.builtin.include_role:
         name: docker-ipv6nat
+        apply:
+          tags: docker
       when: docker_ipv6nat is defined and docker_ipv6nat
+      tags: docker
 
-- name: Configure podman
-  hosts: all
-  tasks:
     - name: Include podman role
       ansible.builtin.include_role:
         name: podman
-      when: podman is defined
+        apply:
+          tags: podman
+      when: podman is defined and podman
+      tags: podman
 
-- name: Configure traefik
-  hosts: storage, ap01
-  tasks:
     - name: Include traefik role
       ansible.builtin.include_role:
         name: docker-traefik
         apply:
           tags: traefik
+      when: traefik_container is defined and traefik_container
       tags: traefik
 
-- name: Configure actualbudget
-  hosts: ap01
-  tasks:
     - name: Include actualbudget role
       ansible.builtin.include_role:
         name: docker-actualbudget
         apply:
           tags: actualbudget
+      when: acutalbudget_container is defined and acutalbudget_container
       tags: actualbudget
 
-- name: Configure transmission-openvpn
-  hosts: storage
-  tasks:
     - name: Include transmission-openvpn role
       ansible.builtin.include_role:
         name: docker-transmission-openvpn
         apply:
           tags: transmission
+      when: transmission_openvpn_container is defined and transmission_openvpn_container
       tags: transmission
 
-- name: Cloudflare dyndns
-  hosts: cloud
-  tasks:
     - name: Include docker-cloudflare-ddns role
       ansible.builtin.include_role:
         name: docker-cloudflare-ddns
+        apply:
+          tags: cloudflare_ddns
+      when: cloudflare_ddns_container is defined and cloudflare_ddns_container
+      tags: cloudflare_ddns
 
-- name: Wireguard
-  hosts: cloud
-  tasks:
-    - name: Create local configuration directory
-      ansible.builtin.file:
-        path: "../configs/wireguard/{{ inventory_hostname }}"
-        mode: 0640
-        state: directory
-      delegate_to: localhost
+    - name: Wireguard
+      when: wireguard_container is defined and wireguard_container
+      block:
+        - name: Get current local user
+          ansible.builtin.command:
+            cmd: whoami
+          changed_when: false
+          register: whoami
+          delegate_to: localhost
+          tags: wireguard
 
-    - name: Include docker-wireguard role
-      ansible.builtin.include_role:
-        name: docker-wireguard
+        - name: Create local configuration directory
+          ansible.builtin.file:
+            path: "../configs/wireguard/{{ inventory_hostname }}"
+            mode: 0700
+            owner: "{{ whoami.stdout }}"
+            group: "{{ whoami.stdout }}"
+            state: directory
+            recurse: true
+          delegate_to: localhost
+          tags: wireguard
 
-    - name: Get current user
-      ansible.builtin.command:
-        cmd: whoami
-      changed_when: false
-      register: whoami
+        - name: Include docker-wireguard role
+          ansible.builtin.include_role:
+            name: docker-wireguard
+            apply:
+              tags: wireguard
+          tags: wireguard
 
-    - name: Set copy facts
-      ansible.builtin.set_fact:
-        whoami: "{{ whoami.stdout }}"
-        temp_path: "/home/{{ whoami.stdout }}/wireguard_configs"
+        - name: Get current user
+          ansible.builtin.command:
+            cmd: whoami
+          changed_when: false
+          register: whoami
+          tags: wireguard
 
-    - name: Copy wireguard configs to user dir
-      ansible.builtin.copy:
-        src: "{{ wireguard_container_configs_dir }}"
-        dest: "{{ temp_path }}"
-        remote_src: true
-        mode: 0640
-        owner: "{{ whoami }}"
-        group: "{{ whoami }}"
-      become: true
+        - name: Set copy facts
+          ansible.builtin.set_fact:
+            temp_path: "/home/{{ whoami.stdout }}/wireguard_configs"
+          tags: wireguard
 
-    - name: Fetch wireguard configs
-      ansible.builtin.synchronize:
-        src: "{{ temp_path }}"
-        dest: "../configs/{{ inventory_hostname }}/"
-        mode: pull
+        - name: Copy wireguard configs to user dir
+          ansible.builtin.copy:
+            src: "{{ wireguard_container_configs_dir }}"
+            dest: "{{ temp_path }}"
+            remote_src: true
+            mode: 0700
+            owner: "{{ whoami.stdout }}"
+            group: "{{ whoami.stdout }}"
+          become: true
+          tags: wireguard
 
-    - name: Delete temp path
-      ansible.builtin.file:
-        path: "{{ temp_path }}"
-        state: absent
+        - name: Fetch wireguard configs
+          ansible.builtin.synchronize:
+            src: "{{ temp_path }}"
+            dest: "../configs/wireguard/{{ inventory_hostname }}/*"
+            mode: pull
+          tags: wireguard
+
+        - name: Delete temp path
+          ansible.builtin.file:
+            path: "{{ temp_path }}"
+            state: absent
+          tags: wireguard
 
 # - name: Configure longhorn
 #   hosts: k3s-node*
