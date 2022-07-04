@@ -9,6 +9,7 @@ setup: ## setup required things
 	pre-commit install
 	pre-commit install-hooks
 	ansible-galaxy role install -f -r roles/requirements.yml
+	ansible-galaxy collection install -U -r collections/requirements.yml
 
 puml-svg: ## render plantuml diagrams as svg
 	cd docs/
