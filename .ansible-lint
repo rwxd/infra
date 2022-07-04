@@ -9,5 +9,5 @@ exclude_paths:
   - roles/ansible-disk/
   - roles/ansible-role-k3s/
   - roles/unattended-upgrades/
-  - roles/geerilgguy.docker/
-  - roles/geerilgguy.pip/
+  - roles/geerlingguy.docker/
+  - roles/geerlingguy.pip/

@@ -26,49 +26,49 @@
           become: true
       when: disk_additional_disks is defined
 
-    # - name: Include unattended-upgrades role
-    #   ansible.builtin.include_role:
-    #     name: unattended-upgrades
-    #     apply:
-    #       become: true
-    #   when: ansible_distribution in ["Debian", "Ubuntu"]
-    #
-    # - name: Include update system role
-    #   ansible.builtin.include_role:
-    #     name: update
+    - name: Include unattended-upgrades role
+      ansible.builtin.include_role:
+        name: unattended-upgrades
+        apply:
+          become: true
+      when: ansible_distribution in ["Debian", "Ubuntu"]
 
-# - name: Configure docker
-#   hosts: all
-#   tasks:
-#     - name: Get architecture
-#       ansible.builtin.command:
-#         cmd: dpkg --print-architecture
-#       register: architecture
-#       when: docker is defined and docker
-#
-#     - name: Include docker role
-#       ansible.builtin.include_role:
-#         name: geerlingguy.docker
-#         apply:
-#           become: true
-#       when: docker is defined and docker
-#       vars:
-#         docker_apt_arch: "{{ architecture.stdout }}"
-#
-#     - name: Install pip with docker package
-#       ansible.builtin.include_role:
-#         name: geerlingguy.pip
-#         apply:
-#           become: true
-#       when: docker is defined and docker
-#       vars:
-#         pip_install_packages:
-#           - name: docker
-#
-#     - name: Install ipv6nat
-#       ansible.builtin.include_role:
-#         name: docker-ipv6nat
-#       when: docker_ipv6nat is defined and docker_ipv6nat
+    - name: Include update system role
+      ansible.builtin.include_role:
+        name: update
+
+- name: Configure docker
+  hosts: all
+  tasks:
+    - name: Get architecture
+      ansible.builtin.command:
+        cmd: dpkg --print-architecture
+      register: architecture
+      when: docker is defined and docker
+
+    - name: Include docker role
+      ansible.builtin.include_role:
+        name: geerlingguy.docker
+        apply:
+          become: true
+      when: docker is defined and docker
+      vars:
+        docker_apt_arch: "{{ architecture.stdout }}"
+
+    - name: Install pip with docker package
+      ansible.builtin.include_role:
+        name: geerlingguy.pip
+        apply:
+          become: true
+      when: docker is defined and docker
+      vars:
+        pip_install_packages:
+          - name: docker
+
+    - name: Install ipv6nat
+      ansible.builtin.include_role:
+        name: docker-ipv6nat
+      when: docker_ipv6nat is defined and docker_ipv6nat
 
 - name: Configure podman
   hosts: all
