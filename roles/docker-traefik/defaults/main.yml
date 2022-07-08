@@ -1,6 +1,7 @@
 ---
 traefik_container_name: traefik
-traefik_container_image: docker.io/traefik:v2.8.0
+traefik_container_registry: docker.io
+traefik_container_image: "{{ traefik_container_registry }}/traefik:v2.8.0"
 traefik_container_ports:
   - "443:443"
   - "80:80"

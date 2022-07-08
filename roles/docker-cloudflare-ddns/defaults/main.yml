@@ -29,4 +29,4 @@ cloudflare_ddns_container_env_v6:
 cloudflare_ddns_container_state: "started"
 cloudflare_ddns_container_restart_policy: "unless-stopped"
 cloudflare_ddns_container_ipv4_record: true
-cloudflare_ddns_container_ipv6_record: true
+cloudflare_ddns_container_ipv6_record: false

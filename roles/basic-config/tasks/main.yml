@@ -24,6 +24,13 @@
     ansible_distribution in ["Ubuntu"]
     and cloud_dir.stat.exists
 
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 600
+  become: true
+  when: ansible_distribution in ["Ubuntu", "Debian"]
+
 - name: Install some troubleshooting tools
   ansible.builtin.package:
     name:
