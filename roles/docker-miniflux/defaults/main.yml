@@ -1,0 +1,42 @@
+---
+miniflux_container_name: miniflux
+miniflux_container_image: docker.io/miniflux/miniflux:2.0.37
+miniflux_container_ports:
+  - "8000:8080"
+miniflux_container_state: started
+miniflux_container_user_id: 1000
+miniflux_container_group_id: 1000
+miniflux_container_env:
+  "PUID": "{{ miniflux_container_user_id | quote }}"
+  "PGID": "{{ miniflux_container_group_id | quote }}"
+  "TZ": "{{ miniflux_container_timezone | default('Europe/Berlin') | quote }}"
+miniflux_container_env_custom: {}
+miniflux_container_user: miniflux
+miniflux_container_restart_policy: unless-stopped
+miniflux_container_dir: "/var/containers/miniflux"
+miniflux_container_labels: {}
+miniflux_container_labels_custom: {}
+miniflux_container_commands: []
+miniflux_container_commands_custom: []
+miniflux_container_networks:
+  - name: miniflux
+miniflux_container_networks_custom: []
+
+miniflux_container_postgres_name: "{{ miniflux_container_name }}-postgres"
+miniflux_container_postgres_image: "docker.io/postgres:14.4"
+miniflux_container_postgres_ports: []
+miniflux_container_postgres_db_name: "miniflux"
+miniflux_container_postgres_env:
+  "PUID": "{{ miniflux_container_user_id | quote }}"
+  "PGID": "{{ miniflux_container_group_id | quote }}"
+  "TZ": "{{ miniflux_container_timezone | default('Europe/Berlin') | quote }}"
+  "POSTGRES_DB": "{{ miniflux_container_postgres_db_name | quote }}"
+miniflux_container_postgres_env_custom: {}
+miniflux_container_postgres_data_dir: "{{ miniflux_container_dir }}/db"
+miniflux_container_postgres_labels: {}
+miniflux_container_postgres_labels_custom: {}
+miniflux_container_postgres_commands: []
+miniflux_container_postgres_commands_custom: []
+miniflux_container_postgres_networks:
+  - name: miniflux
+miniflux_container_postgres_networks_custom: []

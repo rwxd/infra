@@ -135,6 +135,14 @@
       when: cloudflare_ddns_container is defined and cloudflare_ddns_container
       tags: cloudflare_ddns
 
+    - name: Include docker-miniflux role
+      ansible.builtin.include_role:
+        name: docker-miniflux
+        apply:
+          tags: miniflux
+      when: miniflux_container is defined and miniflux_container
+      tags: miniflux
+
     - name: Wireguard
       when: wireguard_container is defined and wireguard_container
       block:

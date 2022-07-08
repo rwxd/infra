@@ -1,0 +1,71 @@
+---
+- name: Create miniflux directory
+  ansible.builtin.file:
+    path: "{{ miniflux_container_dir }}"
+    owner: "{{ miniflux_container_user_id }}"
+    group: "{{ miniflux_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create miniflux postgres data directory
+  ansible.builtin.file:
+    path: "{{ miniflux_container_postgres_data_dir }}"
+    owner: "{{ miniflux_container_user_id }}"
+    group: "{{ miniflux_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create miniflux database container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: "{{ item.state | default('present') }}"
+  become: true
+  with_items: "{{ miniflux_container_postgres_networks+ miniflux_container_postgres_networks_custom }}"
+
+- name: Make sure the miniflux postgres container is created and running
+  docker_container:
+    name: "{{ miniflux_container_postgres_name }}"
+    image: "{{ miniflux_container_postgres_image }}"
+    pull: true
+    state: "{{ miniflux_container_state }}"
+    env: "{{ miniflux_container_postgres_env | combine(miniflux_container_postgres_env_custom) }}"
+    command: "{{ miniflux_container_postgres_commands + miniflux_container_postgres_commands_custom }}"
+    ports: "{{ miniflux_container_postgres_ports }}"
+    volumes:
+      - "{{ miniflux_container_postgres_data_dir }}:/var/lib/postgresql/data"
+    networks: "{{ miniflux_container_postgres_networks + miniflux_container_postgres_networks_custom }}"
+    restart_policy: "{{ miniflux_container_restart_policy }}"
+    labels: "{{ miniflux_container_postgres_labels | combine(miniflux_container_postgres_labels_custom) }}"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "{{ miniflux_container_postgres_db_name }}"]
+      interval: 10s
+      start_period: 30s
+  become: true
+
+- name: Create miniflux container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: "{{ item.state | default('present') }}"
+  become: true
+  with_items: "{{ miniflux_container_networks + miniflux_container_networks_custom }}"
+
+- name: Make sure the miniflux container is created and running
+  docker_container:
+    name: "{{ miniflux_container_name }}"
+    image: "{{ miniflux_container_image }}"
+    pull: true
+    state: "{{ miniflux_container_state }}"
+    env: "{{ miniflux_container_env | combine(miniflux_container_env_custom) }}"
+    command: "{{ miniflux_container_commands + miniflux_container_commands_custom }}"
+    ports: "{{ miniflux_container_ports }}"
+    networks: "{{ miniflux_container_networks + miniflux_container_networks_custom }}"
+    restart_policy: "{{ miniflux_container_restart_policy }}"
+    labels: "{{ miniflux_container_labels | combine(miniflux_container_labels_custom) }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true
