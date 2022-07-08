@@ -1,0 +1,16 @@
+---
+nebula_version: "1.6.0"
+nebula_arch: "arm64"
+nebula_os: "linux"
+nebula_temp_dir: "/tmp/nebula_build"
+nebula_app_dir: "/var/lib/nebula"
+nebula_conf_dir: "/etc/nebula"
+nebula_conf_path: "{{ nebula_conf_dir }}/config.yml"
+nebula_bin_path: "{{ nebula_app_dir }}/nebula"
+nebula_cert_bin_path: "{{ nebula_app_dir }}/nebula-cert"
+
+nebula_is_member: true
+nebula_is_lighthouse: false
+nebula_is_ca: false
+
+nebula_ca_name: Nebula CA

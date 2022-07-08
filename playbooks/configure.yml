@@ -1,6 +1,7 @@
 ---
 - name: Configure systems
   hosts: all
+  debugger: on_failed
   tasks:
     - name: Include basic-config role
       ansible.builtin.include_role:
@@ -57,10 +58,19 @@
           tags: config
       tags: config
 
+    - name: Include nebula
+      ansible.builtin.include_role:
+        name: nebula
+        apply:
+          tags: nebula
+      when: nebula is defined and nebula
+      tags: nebula
+
     - name: Get architecture
       ansible.builtin.command:
         cmd: dpkg --print-architecture
       register: architecture
+      changed_when: false
       when: docker is defined and docker
       tags: docker
 

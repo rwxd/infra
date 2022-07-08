@@ -1,0 +1,33 @@
+---
+- name: Add the group nebula
+  ansible.builtin.group:
+    name: nebula
+    state: present
+  become: true
+
+- name: Add the user nebula
+  ansible.builtin.user:
+    name: nebula
+    comment: Nebula Node user
+    group: nebula
+    create_home: false
+    shell: /usr/bin/false
+  become: true
+
+- name: Create nebula's app directory
+  ansible.builtin.file:
+    path: "{{ nebula_app_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  become: true
+
+- name: Create nebula's config directory
+  ansible.builtin.file:
+    path: "{{ nebula_conf_dir }}"
+    owner: root
+    group: root
+    mode: "0700"
+    state: directory
+  become: true
