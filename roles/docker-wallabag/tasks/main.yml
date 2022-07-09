@@ -1,0 +1,82 @@
+---
+- name: Create wallabag directory
+  ansible.builtin.file:
+    path: "{{ wallabag_container_dir }}"
+    owner: "{{ wallabag_container_user_id }}"
+    group: "{{ wallabag_container_group_id }}"
+    mode: 0740
+    state: directory
+  become: true
+
+- name: Create wallabag data directory
+  ansible.builtin.file:
+    path: "{{ wallabag_container_data_dir }}"
+    owner: 65534
+    group: 65534
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create wallabag postgres data directory
+  ansible.builtin.file:
+    path: "{{ wallabag_container_postgres_data_dir }}"
+    owner: "{{ wallabag_container_user_id }}"
+    group: "{{ wallabag_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create wallabag database container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: "{{ item.state | default('present') }}"
+  become: true
+  with_items: "{{ wallabag_container_postgres_networks+ wallabag_container_postgres_networks_custom }}"
+
+- name: Make sure the wallabag postgres container is created and running
+  docker_container:
+    name: "{{ wallabag_container_postgres_name }}"
+    image: "{{ wallabag_container_postgres_image }}"
+    pull: true
+    state: "{{ wallabag_container_state }}"
+    env: "{{ wallabag_container_postgres_env | combine(wallabag_container_postgres_env_custom) }}"
+    command: "{{ wallabag_container_postgres_commands + wallabag_container_postgres_commands_custom }}"
+    ports: "{{ wallabag_container_postgres_ports }}"
+    volumes:
+      - "{{ wallabag_container_postgres_data_dir }}:/var/lib/postgresql/data"
+    networks: "{{ wallabag_container_postgres_networks + wallabag_container_postgres_networks_custom }}"
+    restart_policy: "{{ wallabag_container_restart_policy }}"
+    labels: "{{ wallabag_container_postgres_labels | combine(wallabag_container_postgres_labels_custom) }}"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "{{ wallabag_container_postgres_db_name }}"]
+      interval: 10s
+      start_period: 30s
+  become: true
+
+- name: Create wallabag container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: "{{ item.state | default('present') }}"
+  become: true
+  with_items: "{{ wallabag_container_networks + wallabag_container_networks_custom }}"
+
+- name: Make sure the wallabag container is created and running
+  docker_container:
+    name: "{{ wallabag_container_name }}"
+    image: "{{ wallabag_container_image }}"
+    pull: true
+    state: "{{ wallabag_container_state }}"
+    env: "{{ wallabag_container_env | combine(wallabag_container_env_custom) }}"
+    command: "{{ wallabag_container_commands + wallabag_container_commands_custom }}"
+    ports: "{{ wallabag_container_ports }}"
+    volumes:
+      - "{{ wallabag_container_data_dir }}/images:/var/www/wallabag/web/assets/images"
+    networks: "{{ wallabag_container_networks + wallabag_container_networks_custom }}"
+    restart_policy: "{{ wallabag_container_restart_policy }}"
+    labels: "{{ wallabag_container_labels | combine(wallabag_container_labels_custom) }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true

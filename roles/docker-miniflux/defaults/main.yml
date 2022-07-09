@@ -35,7 +35,8 @@ miniflux_container_postgres_env_custom: {}
 miniflux_container_postgres_data_dir: "{{ miniflux_container_dir }}/db"
 miniflux_container_postgres_labels: {}
 miniflux_container_postgres_labels_custom: {}
-miniflux_container_postgres_commands: []
+miniflux_container_postgres_commands:
+  - "-c stats_temp_directory=/tmp"
 miniflux_container_postgres_commands_custom: []
 miniflux_container_postgres_networks:
   - name: miniflux

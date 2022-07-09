@@ -20,8 +20,24 @@
       ansible.builtin.include_role:
         name: ssh-hardening
         apply:
-          tags: config
-      tags: config
+          tags:
+            - config
+            - security
+      tags:
+        - config
+        - security
+
+    - name: Include security role
+      ansible.builtin.include_role:
+        name: geerlingguy.security
+        apply:
+          tags:
+            - config
+            - security
+          become: true
+      tags:
+        - config
+        - security
 
     - name: Include firewalld role
       ansible.builtin.include_role:
@@ -39,16 +55,6 @@
           tags: config
       tags: config
       when: disk_additional_disks is defined
-
-    - name: Include unattended-upgrades role
-      ansible.builtin.include_role:
-        name: unattended-upgrades
-        apply:
-          become: true
-          tags: config
-      tags: config
-
-      when: ansible_distribution in ["Debian", "Ubuntu"]
 
     - name: Include update system role
       ansible.builtin.include_role:
@@ -142,6 +148,14 @@
           tags: miniflux
       when: miniflux_container is defined and miniflux_container
       tags: miniflux
+
+    - name: Include docker-wallabag role
+      ansible.builtin.include_role:
+        name: docker-wallabag
+        apply:
+          tags: wallabag
+      when: wallabag_container is defined and wallabag_container
+      tags: wallabag
 
     - name: Wireguard
       when: wireguard_container is defined and wireguard_container
