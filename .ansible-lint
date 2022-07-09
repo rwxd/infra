@@ -11,4 +11,5 @@ exclude_paths:
   - roles/unattended-upgrades/
   - roles/geerlingguy.docker/
   - roles/geerlingguy.pip/
+  - roles/geerlingguy.security/
   - inventory.yml

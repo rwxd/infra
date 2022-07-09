@@ -1,0 +1,44 @@
+---
+wallabag_container_name: wallabag
+wallabag_container_image: docker.io/wallabag/wallabag:2.5.1
+wallabag_container_ports:
+  - "8000:8080"
+wallabag_container_state: started
+wallabag_container_user_id: 1000
+wallabag_container_group_id: 1000
+wallabag_container_env:
+  "PUID": "{{ wallabag_container_user_id | quote }}"
+  "PGID": "{{ wallabag_container_group_id | quote }}"
+  "TZ": "{{ wallabag_container_timezone | default('Europe/Berlin') | quote }}"
+wallabag_container_env_custom: {}
+wallabag_container_user: wallabag
+wallabag_container_restart_policy: unless-stopped
+wallabag_container_dir: "/var/containers/wallabag"
+wallabag_container_data_dir: "{{ wallabag_container_dir }}/data"
+wallabag_container_labels: {}
+wallabag_container_labels_custom: {}
+wallabag_container_commands: []
+wallabag_container_commands_custom: []
+wallabag_container_networks:
+  - name: wallabag
+wallabag_container_networks_custom: []
+
+wallabag_container_postgres_name: "{{ wallabag_container_name }}-postgres"
+wallabag_container_postgres_image: "docker.io/postgres:14.4"
+wallabag_container_postgres_ports: []
+wallabag_container_postgres_db_name: "symfony"
+wallabag_container_postgres_env:
+  "PUID": "{{ wallabag_container_user_id | quote }}"
+  "PGID": "{{ wallabag_container_group_id | quote }}"
+  "TZ": "{{ wallabag_container_timezone | default('Europe/Berlin') | quote }}"
+  "POSTGRES_DB": "{{ wallabag_container_postgres_db_name | quote }}"
+wallabag_container_postgres_env_custom: {}
+wallabag_container_postgres_data_dir: "{{ wallabag_container_dir }}/db"
+wallabag_container_postgres_labels: {}
+wallabag_container_postgres_labels_custom: {}
+wallabag_container_postgres_commands:
+  - "-c stats_temp_directory=/tmp"
+wallabag_container_postgres_commands_custom: []
+wallabag_container_postgres_networks:
+  - name: wallabag
+wallabag_container_postgres_networks_custom: []

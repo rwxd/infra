@@ -23,3 +23,8 @@
   src: https://github.com/AerisCloud/ansible-disk.git
   scm: git
   version: v.2.6.3
+
+- name: geerlingguy.security
+  src: https://github.com/geerlingguy/ansible-role-security.git
+  scm: git
+  version: 2.1.0
