@@ -1,0 +1,175 @@
+---
+- name: Create monitoring_stack directory
+  ansible.builtin.file:
+    path: "{{ monitoring_stack_container_dir }}"
+    owner: 1000
+    group: 1000
+    mode: 0750
+    state: directory
+  become: true
+
+- name: Create grafana directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ monitoring_stack_container_grafana_user_id }}"
+    group: "{{ monitoring_stack_container_grafana_group_id }}"
+    mode: 0750
+    recurse: true
+    state: directory
+  with_items:
+    - "{{ monitoring_stack_container_grafana_dir }}"
+    - "{{ monitoring_stack_container_grafana_data_dir }}"
+  become: true
+
+- name: Write grafana config
+  ansible.builtin.copy:
+    dest: "{{ monitoring_stack_container_grafana_config_path }}"
+    content: "{{ monitoring_stack_container_grafana_config }}"
+    mode: 0740
+    owner: "{{ monitoring_stack_container_grafana_user_id }}"
+    group: "{{ monitoring_stack_container_grafana_group_id }}"
+  become: true
+
+- name: Write grafana datasources
+  ansible.builtin.copy:
+    dest: "{{ monitoring_stack_container_grafana_datasources_path }}"
+    content: "{{ monitoring_stack_container_grafana_datasources | to_nice_yaml(explicit_start=True) }}"
+    mode: 0740
+    owner: "{{ monitoring_stack_container_grafana_user_id }}"
+    group: "{{ monitoring_stack_container_grafana_group_id }}"
+  become: true
+
+- name: Create prometheus directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ monitoring_stack_container_prometheus_user_id }}"
+    group: "{{ monitoring_stack_container_prometheus_group_id }}"
+    mode: 0750
+    recurse: true
+    state: directory
+  with_items:
+    - "{{ monitoring_stack_container_prometheus_dir }}"
+    - "{{ monitoring_stack_container_prometheus_data_dir }}"
+  become: true
+
+- name: Write prometheus config
+  ansible.builtin.copy:
+    dest: "{{ monitoring_stack_container_prometheus_config_path }}"
+    content: "{{ monitoring_stack_container_prometheus_config | to_nice_yaml(explicit_start=True) }}"
+    mode: 0740
+    owner: "{{ monitoring_stack_container_prometheus_user_id }}"
+    group: "{{ monitoring_stack_container_prometheus_group_id }}"
+  become: true
+
+- name: Write prometheus alert rules
+  ansible.builtin.copy:
+    dest: "{{ monitoring_stack_container_prometheus_rules_path }}"
+    content: "{{ monitoring_stack_container_prometheus_rules | to_nice_yaml(explicit_start=True) }}"
+    mode: 0740
+    owner: "{{ monitoring_stack_container_prometheus_user_id }}"
+    group: "{{ monitoring_stack_container_prometheus_group_id }}"
+  become: true
+
+- name: Create alertmanager directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ monitoring_stack_container_alertmanager_user_id }}"
+    group: "{{ monitoring_stack_container_alertmanager_group_id }}"
+    mode: 0750
+    recurse: true
+    state: directory
+  with_items:
+    - "{{ monitoring_stack_container_alertmanager_dir }}"
+    - "{{ monitoring_stack_container_alertmanager_data_dir }}"
+  become: true
+
+- name: Write alertmanager config
+  ansible.builtin.copy:
+    dest: "{{ monitoring_stack_container_alertmanager_config_path }}"
+    content: "{{ monitoring_stack_container_alertmanager_config | to_nice_yaml(explicit_start=True) }}"
+    mode: 0740
+    owner: "{{ monitoring_stack_container_alertmanager_user_id }}"
+    group: "{{ monitoring_stack_container_alertmanager_group_id }}"
+  become: true
+
+- name: Create grafana container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ monitoring_stack_container_grafana_networks + monitoring_stack_container_grafana_networks_custom   }}"
+
+- name: Create prometheus container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ monitoring_stack_container_prometheus_networks + monitoring_stack_container_prometheus_networks_custom   }}"
+
+- name: Create prometheus container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ monitoring_stack_container_alertmanager_networks + monitoring_stack_container_alertmanager_networks_custom   }}"
+
+- name: Make sure the grafana container is created and running
+  docker_container:
+    name: "{{ monitoring_stack_container_grafana_name }}"
+    image: "{{ monitoring_stack_container_grafana_image }}"
+    pull: true
+    state: "{{ monitoring_stack_container_grafana_state }}"
+    env: "{{ monitoring_stack_container_grafana_env | combine(monitoring_stack_container_grafana_env_custom) }}"
+    ports: "{{ monitoring_stack_container_grafana_ports }}"
+    volumes:
+      - "{{ monitoring_stack_container_grafana_data_dir }}:/var/lib/grafana"
+      - "{{ monitoring_stack_container_grafana_datasources_path }}:/etc/grafana/provisioning/datasources/all.yaml"
+      - "{{ monitoring_stack_container_grafana_config_path }}:/etc/grafana/config.ini"
+    command: "{{ monitoring_stack_container_grafana_commands + monitoring_stack_container_grafana_commands_custom }}"
+    networks: "{{ monitoring_stack_container_grafana_networks + monitoring_stack_container_grafana_networks_custom }}"
+    restart_policy: "{{ monitoring_stack_container_grafana_restart_policy }}"
+    labels: "{{ monitoring_stack_container_grafana_labels | combine(monitoring_stack_container_grafana_labels_custom) }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true
+
+- name: Make sure the prometheus container is created and running
+  docker_container:
+    name: "{{ monitoring_stack_container_prometheus_name }}"
+    image: "{{ monitoring_stack_container_prometheus_image }}"
+    pull: true
+    state: "{{ monitoring_stack_container_prometheus_state }}"
+    env: "{{ monitoring_stack_container_prometheus_env | combine(monitoring_stack_container_prometheus_env_custom) }}"
+    ports: "{{ monitoring_stack_container_prometheus_ports }}"
+    volumes:
+      - "{{ monitoring_stack_container_prometheus_data_dir }}:/prometheus"
+      - "{{ monitoring_stack_container_prometheus_rules_path }}:/etc/prometheus/alert_rules.yml"
+      - "{{ monitoring_stack_container_prometheus_config_path }}:/etc/prometheus/prometheus.yml"
+    command: "{{ monitoring_stack_container_prometheus_commands + monitoring_stack_container_prometheus_commands_custom }}"
+    networks: "{{ monitoring_stack_container_prometheus_networks + monitoring_stack_container_prometheus_networks_custom }}"
+    restart_policy: "{{ monitoring_stack_container_prometheus_restart_policy }}"
+    labels: "{{ monitoring_stack_container_prometheus_labels | combine(monitoring_stack_container_prometheus_labels_custom) }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true
+
+- name: Make sure the alertmanager container is created and running
+  docker_container:
+    name: "{{ monitoring_stack_container_alertmanager_name }}"
+    image: "{{ monitoring_stack_container_alertmanager_image }}"
+    pull: true
+    state: "{{ monitoring_stack_container_alertmanager_state }}"
+    env: "{{ monitoring_stack_container_alertmanager_env | combine(monitoring_stack_container_alertmanager_env_custom) }}"
+    ports: "{{ monitoring_stack_container_alertmanager_ports }}"
+    volumes:
+      - "{{ monitoring_stack_container_alertmanager_config_path }}:/etc/alertmanager/alertmanager.conf"
+    command: "{{ monitoring_stack_container_alertmanager_commands + monitoring_stack_container_alertmanager_commands_custom }}"
+    networks: "{{ monitoring_stack_container_alertmanager_networks + monitoring_stack_container_alertmanager_networks_custom }}"
+    restart_policy: "{{ monitoring_stack_container_alertmanager_restart_policy }}"
+    labels: "{{ monitoring_stack_container_alertmanager_labels | combine(monitoring_stack_container_alertmanager_labels_custom) }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true

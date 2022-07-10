@@ -126,12 +126,28 @@
       when: traefik_container is defined and traefik_container
       tags: traefik
 
+    - name: Include docker-cloudflare-ddns role
+      ansible.builtin.include_role:
+        name: docker-cloudflare-ddns
+        apply:
+          tags: cloudflare_ddns
+      when: cloudflare_ddns_container is defined and cloudflare_ddns_container
+      tags: cloudflare_ddns
+
+    - name: Include monitoring-stack role
+      ansible.builtin.include_role:
+        name: docker-monitoring-stack
+        apply:
+          tags: monitoring_stack
+      when: monitoring_stack is defined and monitoring_stack
+      tags: monitoring_stack
+
     - name: Include actualbudget role
       ansible.builtin.include_role:
         name: docker-actualbudget
         apply:
           tags: actualbudget
-      when: acutalbudget_container is defined and acutalbudget_container
+      when: actualbudget_container is defined and actualbudget_container
       tags: actualbudget
 
     - name: Include transmission-openvpn role
@@ -141,14 +157,6 @@
           tags: transmission
       when: transmission_openvpn_container is defined and transmission_openvpn_container
       tags: transmission
-
-    - name: Include docker-cloudflare-ddns role
-      ansible.builtin.include_role:
-        name: docker-cloudflare-ddns
-        apply:
-          tags: cloudflare_ddns
-      when: cloudflare_ddns_container is defined and cloudflare_ddns_container
-      tags: cloudflare_ddns
 
     - name: Include docker-miniflux role
       ansible.builtin.include_role:

@@ -1,0 +1,86 @@
+---
+monitoring_stack_container_dir: "/var/containers/monitoring_stack/"
+
+monitoring_stack_container_grafana_name: grafana
+monitoring_stack_container_grafana_image: docker.io/grafana/grafana:9.0.2
+monitoring_stack_container_grafana_ports:
+  - "3000:3000"
+monitoring_stack_container_grafana_state: started
+monitoring_stack_container_grafana_user: grafana
+monitoring_stack_container_grafana_user_id: 472
+monitoring_stack_container_grafana_group_id: 472
+monitoring_stack_container_grafana_env:
+  "PUID": "{{ monitoring_stack_container_grafana_user_id | quote }}"
+  "PGID": "{{ monitoring_stack_container_grafana_group_id | quote }}"
+  "TZ": "{{ monitoring_stack_container_grafana_timezone | default('Europe/Berlin') | quote }}"
+monitoring_stack_container_grafana_env_custom: {}
+monitoring_stack_container_grafana_restart_policy: unless-stopped
+monitoring_stack_container_grafana_dir: "{{ monitoring_stack_container_dir }}/grafana"
+monitoring_stack_container_grafana_data_dir: "{{ monitoring_stack_container_grafana_dir }}/data"
+monitoring_stack_container_grafana_config_path: "{{ monitoring_stack_container_grafana_dir }}/config.ini"
+monitoring_stack_container_grafana_config: ""
+monitoring_stack_container_grafana_datasources_path: "{{ monitoring_stack_container_grafana_dir }}/config.ini"
+monitoring_stack_container_grafana_datasources: {}
+monitoring_stack_container_grafana_commands: []
+monitoring_stack_container_grafana_commands_custom: []
+monitoring_stack_container_grafana_labels: {}
+monitoring_stack_container_grafana_labels_custom: {}
+monitoring_stack_container_grafana_networks:
+  - name: monitoring_stack
+monitoring_stack_container_grafana_networks_custom: []
+
+monitoring_stack_container_prometheus_name: prometheus
+monitoring_stack_container_prometheus_image: docker.io/prom/prometheus:v2.36.2
+monitoring_stack_container_prometheus_ports:
+  - "9090:9090"
+monitoring_stack_container_prometheus_state: started
+monitoring_stack_container_prometheus_user: prometheus
+monitoring_stack_container_prometheus_user_id: 65534
+monitoring_stack_container_prometheus_group_id: 65534
+monitoring_stack_container_prometheus_env:
+  "PUID": "{{ monitoring_stack_container_prometheus_user_id | quote }}"
+  "PGID": "{{ monitoring_stack_container_prometheus_group_id | quote }}"
+  "TZ": "{{ monitoring_stack_container_prometheus_timezone | default('Europe/Berlin') | quote }}"
+monitoring_stack_container_prometheus_env_custom: {}
+monitoring_stack_container_prometheus_restart_policy: unless-stopped
+monitoring_stack_container_prometheus_dir: "{{ monitoring_stack_container_dir }}/prometheus"
+monitoring_stack_container_prometheus_data_dir: "{{ monitoring_stack_container_prometheus_dir }}/data"
+monitoring_stack_container_prometheus_config_path: "{{ monitoring_stack_container_prometheus_dir }}/prometheus.yml"
+monitoring_stack_container_prometheus_config: {}
+monitoring_stack_container_prometheus_rules_path: "{{ monitoring_stack_container_prometheus_dir }}/alert_rules.yml"
+monitoring_stack_container_prometheus_rules: {}
+monitoring_stack_container_prometheus_commands:
+  - "--config.file=/etc/prometheus/prometheus.yml"
+monitoring_stack_container_prometheus_commands_custom: []
+monitoring_stack_container_prometheus_labels: {}
+monitoring_stack_container_prometheus_labels_custom: {}
+monitoring_stack_container_prometheus_networks:
+  - name: monitoring_stack
+monitoring_stack_container_prometheus_networks_custom: []
+
+monitoring_stack_container_alertmanager_name: alertmanager
+monitoring_stack_container_alertmanager_image: docker.io/prom/alertmanager:v0.24.0
+monitoring_stack_container_alertmanager_ports:
+  - "9093:9093"
+monitoring_stack_container_alertmanager_state: started
+monitoring_stack_container_alertmanager_user: alertmanager
+monitoring_stack_container_alertmanager_user_id: 65534
+monitoring_stack_container_alertmanager_group_id: 65534
+monitoring_stack_container_alertmanager_env:
+  "PUID": "{{ monitoring_stack_container_alertmanager_user_id | quote }}"
+  "PGID": "{{ monitoring_stack_container_alertmanager_group_id | quote }}"
+  "TZ": "{{ monitoring_stack_container_alertmanager_timezone | default('Europe/Berlin') | quote }}"
+monitoring_stack_container_alertmanager_env_custom: {}
+monitoring_stack_container_alertmanager_restart_policy: unless-stopped
+monitoring_stack_container_alertmanager_dir: "{{ monitoring_stack_container_dir }}/alertmanager"
+monitoring_stack_container_alertmanager_data_dir: "{{ monitoring_stack_container_alertmanager_dir }}/data"
+monitoring_stack_container_alertmanager_config_path: "{{ monitoring_stack_container_alertmanager_dir }}/config.conf"
+monitoring_stack_container_alertmanager_config: {}
+monitoring_stack_container_alertmanager_commands:
+  - "--config.file=/etc/alertmanager/alertmanager.conf"
+monitoring_stack_container_alertmanager_commands_custom: []
+monitoring_stack_container_alertmanager_labels: {}
+monitoring_stack_container_alertmanager_labels_custom: {}
+monitoring_stack_container_alertmanager_networks:
+  - name: monitoring_stack
+monitoring_stack_container_alertmanager_networks_custom: []
