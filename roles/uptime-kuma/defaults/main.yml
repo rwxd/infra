@@ -1,0 +1,4 @@
+---
+uptime_kuma_user: uptime_kuma
+uptime_kuma_group: "{{ uptime_kuma_user }}"
+uptime_kuma_app_dir: /var/uptime_kuma

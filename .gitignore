@@ -1,3 +1,4 @@
+roles/caddy-ansible
 roles/unattended-upgrades
 roles/geerlingguy*
 roles/ansible-role-k3s/

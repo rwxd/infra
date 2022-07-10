@@ -1,0 +1,18 @@
+---
+uptime_kuma_container_name: uptime_kuma
+uptime_kuma_container_image: docker.io/louislam/uptime-kuma:1.17.1-alpine
+uptime_kuma_container_ports:
+  - "3001:3001"
+uptime_kuma_container_state: started
+uptime_kuma_container_user_id: 1000
+uptime_kuma_container_group_id: 1000
+uptime_kuma_container_env:
+  "PUID": "{{ uptime_kuma_container_user_id | quote }}"
+  "PGID": "{{ uptime_kuma_container_group_id | quote }}"
+  "TZ": "{{ uptime_kuma_container_timezone | default('Europe/Berlin') | quote }}"
+uptime_kuma_container_user: uptime_kumauptime
+uptime_kuma_container_restart_policy: unless-stopped
+uptime_kuma_container_dir: "/var/containers/uptime_kuma/"
+uptime_kuma_container_data_dir: "{{ uptime_kuma_container_dir }}/data"
+uptime_kuma_container_labels: {}
+uptime_kuma_container_networks: []

@@ -109,6 +109,15 @@
       when: podman is defined and podman
       tags: podman
 
+    - name: Include caddy role
+      ansible.builtin.include_role:
+        name: caddy-ansible
+        apply:
+          tags: caddy
+          become: true
+      when: caddy is defined and caddy
+      tags: caddy
+
     - name: Include traefik role
       ansible.builtin.include_role:
         name: docker-traefik
@@ -148,6 +157,14 @@
           tags: miniflux
       when: miniflux_container is defined and miniflux_container
       tags: miniflux
+
+    - name: Include docker-uptime_kuma role
+      ansible.builtin.include_role:
+        name: docker-uptime_kuma
+        apply:
+          tags: uptime_kuma
+      when: uptime_kuma_container is defined and uptime_kuma_container
+      tags: uptime_kuma
 
     - name: Include docker-wallabag role
       ansible.builtin.include_role:
