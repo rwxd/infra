@@ -4,6 +4,7 @@ extends: default
 
 ignore: |
   inventory.yml
+  roles/caddy-ansible/*
 
 rules:
   line-length: disable

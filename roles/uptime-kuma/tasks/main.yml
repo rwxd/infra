@@ -1,0 +1,29 @@
+---
+- name: Create user
+  ansible.builtin.user:
+    name: "{{ uptime_kuma_user }}"
+  become: true
+
+- name: Install required js packages
+  ansible.builtin.package:
+    name:
+      - node
+      - npm
+    state: present
+  become: true
+
+- name: Create app dir
+  ansible.builtin.file:
+    path: "{{ uptime_kuma_app_dir }}"
+    state: directory
+    recurse: true
+    mode: 0700
+    user: "{{ uptime_kuma_user }}"
+    group: "{{ uptime_kuma_user }}"
+  become: true
+
+- name: Install pm2
+  npm:
+    name: pm2
+    global: true
+  become: true

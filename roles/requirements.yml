@@ -28,3 +28,8 @@
   src: https://github.com/geerlingguy/ansible-role-security.git
   scm: git
   version: 2.1.0
+
+- name: caddy-ansible
+  src: https://github.com/caddy-ansible/caddy-ansible.git
+  scm: git
+  version: v3.1.0

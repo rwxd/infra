@@ -1,0 +1,45 @@
+---
+- name: Create uptime_kuma directory
+  ansible.builtin.file:
+    path: "{{ uptime_kuma_container_dir }}"
+    owner: "{{ uptime_kuma_container_user_id }}"
+    group: "{{ uptime_kuma_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create uptime_kuma data directory
+  ansible.builtin.file:
+    path: "{{ uptime_kuma_container_data_dir }}"
+    owner: "{{ uptime_kuma_container_user_id }}"
+    group: "{{ uptime_kuma_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Create container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ uptime_kuma_container_networks }}"
+
+- name: Make sure the uptime_kuma container is created and running
+  docker_container:
+    name: "{{ uptime_kuma_container_name }}"
+    image: "{{ uptime_kuma_container_image }}"
+    pull: true
+    state: "{{ uptime_kuma_container_state }}"
+    env: "{{ uptime_kuma_container_env }}"
+    ports: "{{ uptime_kuma_container_ports }}"
+    volumes:
+      - "{{ uptime_kuma_container_data_dir }}:/app/data"
+    networks: "{{ uptime_kuma_container_networks }}"
+    restart_policy: "{{ uptime_kuma_container_restart_policy }}"
+    labels: "{{ uptime_kuma_container_labels }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true
