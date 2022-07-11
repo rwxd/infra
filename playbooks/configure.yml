@@ -1,6 +1,7 @@
 ---
 - name: Configure systems
   hosts: all
+  debugger: on_failed
   tasks:
     - name: Include basic-config role
       ansible.builtin.include_role:
@@ -117,6 +118,31 @@
           become: true
       when: caddy is defined and caddy
       tags: caddy
+
+    - name: Include node exporter role
+      ansible.builtin.include_role:
+        name: ansible-node-exporter
+        apply:
+          tags: node_exporter
+          become: true
+      when: node_exporter is defined and node_exporter
+      tags: node_exporter
+
+    - name: Include fritz-exporter role
+      ansible.builtin.include_role:
+        name: docker-fritz-exporter
+        apply:
+          tags: fritz_exporter
+      when: fritz_exporter_container is defined and fritz_exporter_container
+      tags: fritz_exporter
+
+    - name: Include fritz-exporter-new role
+      ansible.builtin.include_role:
+        name: docker-fritz-exporter-new
+        apply:
+          tags: fritz_exporter
+      when: fritz_exporter_container is defined and fritz_exporter_container
+      tags: fritz_exporter
 
     - name: Include traefik role
       ansible.builtin.include_role:

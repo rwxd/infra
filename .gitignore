@@ -1,3 +1,4 @@
+roles/ansible-node-exporter
 roles/caddy-ansible
 roles/unattended-upgrades
 roles/geerlingguy*

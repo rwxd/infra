@@ -19,7 +19,7 @@ monitoring_stack_container_grafana_dir: "{{ monitoring_stack_container_dir }}/gr
 monitoring_stack_container_grafana_data_dir: "{{ monitoring_stack_container_grafana_dir }}/data"
 monitoring_stack_container_grafana_config_path: "{{ monitoring_stack_container_grafana_dir }}/config.ini"
 monitoring_stack_container_grafana_config: ""
-monitoring_stack_container_grafana_datasources_path: "{{ monitoring_stack_container_grafana_dir }}/config.ini"
+monitoring_stack_container_grafana_datasources_path: "{{ monitoring_stack_container_grafana_dir }}/datasources.yaml"
 monitoring_stack_container_grafana_datasources: {}
 monitoring_stack_container_grafana_commands: []
 monitoring_stack_container_grafana_commands_custom: []

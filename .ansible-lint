@@ -13,4 +13,5 @@ exclude_paths:
   - roles/geerlingguy.pip/
   - roles/geerlingguy.security/
   - roles/caddy-ansible
+  - roles/ansible-node-exporter
   - inventory.yml

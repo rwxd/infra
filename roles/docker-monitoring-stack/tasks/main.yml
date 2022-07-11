@@ -14,7 +14,6 @@
     owner: "{{ monitoring_stack_container_grafana_user_id }}"
     group: "{{ monitoring_stack_container_grafana_group_id }}"
     mode: 0750
-    recurse: true
     state: directory
   with_items:
     - "{{ monitoring_stack_container_grafana_dir }}"
@@ -29,6 +28,7 @@
     owner: "{{ monitoring_stack_container_grafana_user_id }}"
     group: "{{ monitoring_stack_container_grafana_group_id }}"
   become: true
+  notify: Restart grafana container
 
 - name: Write grafana datasources
   ansible.builtin.copy:
@@ -45,7 +45,6 @@
     owner: "{{ monitoring_stack_container_prometheus_user_id }}"
     group: "{{ monitoring_stack_container_prometheus_group_id }}"
     mode: 0750
-    recurse: true
     state: directory
   with_items:
     - "{{ monitoring_stack_container_prometheus_dir }}"
@@ -60,6 +59,7 @@
     owner: "{{ monitoring_stack_container_prometheus_user_id }}"
     group: "{{ monitoring_stack_container_prometheus_group_id }}"
   become: true
+  notify: Restart prometheus container
 
 - name: Write prometheus alert rules
   ansible.builtin.copy:
@@ -76,7 +76,6 @@
     owner: "{{ monitoring_stack_container_alertmanager_user_id }}"
     group: "{{ monitoring_stack_container_alertmanager_group_id }}"
     mode: 0750
-    recurse: true
     state: directory
   with_items:
     - "{{ monitoring_stack_container_alertmanager_dir }}"
@@ -91,6 +90,7 @@
     owner: "{{ monitoring_stack_container_alertmanager_user_id }}"
     group: "{{ monitoring_stack_container_alertmanager_group_id }}"
   become: true
+  notify: Restart alertmanager container
 
 - name: Create grafana container networks
   docker_network:
@@ -173,3 +173,6 @@
     log_opt:
       max-size: 10m
   become: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
