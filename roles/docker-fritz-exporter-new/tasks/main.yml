@@ -1,0 +1,24 @@
+---
+- name: Create container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ fritz_exporter_new_container_networks + fritz_exporter_new_container_networks_custom  }}"
+
+
+# docker build --tag fritzbox-prometheus-exporter:latest .
+- name: Make sure the fritz_exporter container is created and running
+  docker_container:
+    name: "{{ fritz_exporter_new_container_name }}"
+    image: "{{ fritz_exporter_new_container_image }}"
+    state: "{{ fritz_exporter_new_container_state }}"
+    env: "{{ fritz_exporter_new_container_env | combine(fritz_exporter_new_container_env_custom) }}"
+    ports: "{{ fritz_exporter_new_container_ports }}"
+    networks:  "{{ fritz_exporter_new_container_networks + fritz_exporter_new_container_networks_custom  }}"
+    restart_policy: "{{ fritz_exporter_new_container_restart_policy }}"
+    labels: "{{ fritz_exporter_new_container_labels | combine(fritz_exporter_new_container_labels) }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true

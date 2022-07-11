@@ -1,0 +1,19 @@
+---
+fritz_exporter_container_name: fritz_exporter
+fritz_exporter_container_image: docker.io/pdreker/fritz_exporter:v2.0.0
+fritz_exporter_container_ports:
+  - "9787:9787"
+fritz_exporter_container_state: started
+fritz_exporter_container_user: fritz_exporter
+fritz_exporter_container_user_id: 1000
+fritz_exporter_container_group_id: 1000
+fritz_exporter_container_env:
+  "PUID": "{{ fritz_exporter_container_user_id | quote }}"
+  "PGID": "{{ fritz_exporter_container_group_id | quote }}"
+  "TZ": "{{ fritz_exporter_container_timezone | default('Europe/Berlin') | quote }}"
+fritz_exporter_container_env_custom: {}
+fritz_exporter_container_restart_policy: unless-stopped
+fritz_exporter_container_labels: {}
+fritz_exporter_container_labels_custom: {}
+fritz_exporter_container_networks: []
+fritz_exporter_container_networks_custom: []

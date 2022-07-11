@@ -1,0 +1,18 @@
+---
+- name: Restart grafana container
+  ansible.builtin.command:
+    cmd: docker restart grafana
+  become: true
+  when: "monitoring_stack_container_grafana_state == 'started'"
+
+- name: Restart prometheus container
+  ansible.builtin.command:
+    cmd: docker restart prometheus
+  become: true
+  when: "monitoring_stack_container_prometheus_state == 'started'"
+
+- name: Restart alertmanager container
+  ansible.builtin.command:
+    cmd: docker restart alertmanager
+  become: true
+  when: "monitoring_stack_container_alertmanager_state == 'started'"

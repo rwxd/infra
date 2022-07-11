@@ -1,6 +1,7 @@
 ---
 - name: Configure systems
   hosts: all
+  debugger: on_failed
   tasks:
     - name: Include basic-config role
       ansible.builtin.include_role:
@@ -118,6 +119,31 @@
       when: caddy is defined and caddy
       tags: caddy
 
+    - name: Include node exporter role
+      ansible.builtin.include_role:
+        name: ansible-node-exporter
+        apply:
+          tags: node_exporter
+          become: true
+      when: node_exporter is defined and node_exporter
+      tags: node_exporter
+
+    - name: Include fritz-exporter role
+      ansible.builtin.include_role:
+        name: docker-fritz-exporter
+        apply:
+          tags: fritz_exporter
+      when: fritz_exporter_container is defined and fritz_exporter_container
+      tags: fritz_exporter
+
+    - name: Include fritz-exporter-new role
+      ansible.builtin.include_role:
+        name: docker-fritz-exporter-new
+        apply:
+          tags: fritz_exporter
+      when: fritz_exporter_container is defined and fritz_exporter_container
+      tags: fritz_exporter
+
     - name: Include traefik role
       ansible.builtin.include_role:
         name: docker-traefik
@@ -126,12 +152,28 @@
       when: traefik_container is defined and traefik_container
       tags: traefik
 
+    - name: Include docker-cloudflare-ddns role
+      ansible.builtin.include_role:
+        name: docker-cloudflare-ddns
+        apply:
+          tags: cloudflare_ddns
+      when: cloudflare_ddns_container is defined and cloudflare_ddns_container
+      tags: cloudflare_ddns
+
+    - name: Include monitoring-stack role
+      ansible.builtin.include_role:
+        name: docker-monitoring-stack
+        apply:
+          tags: monitoring_stack
+      when: monitoring_stack is defined and monitoring_stack
+      tags: monitoring_stack
+
     - name: Include actualbudget role
       ansible.builtin.include_role:
         name: docker-actualbudget
         apply:
           tags: actualbudget
-      when: acutalbudget_container is defined and acutalbudget_container
+      when: actualbudget_container is defined and actualbudget_container
       tags: actualbudget
 
     - name: Include transmission-openvpn role
@@ -141,14 +183,6 @@
           tags: transmission
       when: transmission_openvpn_container is defined and transmission_openvpn_container
       tags: transmission
-
-    - name: Include docker-cloudflare-ddns role
-      ansible.builtin.include_role:
-        name: docker-cloudflare-ddns
-        apply:
-          tags: cloudflare_ddns
-      when: cloudflare_ddns_container is defined and cloudflare_ddns_container
-      tags: cloudflare_ddns
 
     - name: Include docker-miniflux role
       ansible.builtin.include_role:

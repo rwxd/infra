@@ -33,3 +33,8 @@
   src: https://github.com/caddy-ansible/caddy-ansible.git
   scm: git
   version: v3.1.0
+
+- name: ansible-node-exporter
+  src: https://github.com/cloudalchemy/ansible-node-exporter.git
+  scm: git
+  version: 2.0.0
