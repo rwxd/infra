@@ -144,6 +144,14 @@
       when: fritz_exporter_container is defined and fritz_exporter_container
       tags: fritz_exporter
 
+    - name: Include blackbox-exporter role
+      ansible.builtin.include_role:
+        name: docker-blackbox-exporter
+        apply:
+          tags: blackbox_exporter
+      when: blackbox_exporter_container is defined and blackbox_exporter_container
+      tags: blackbox_exporter
+
     - name: Include traefik role
       ansible.builtin.include_role:
         name: docker-traefik

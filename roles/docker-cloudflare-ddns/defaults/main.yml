@@ -24,7 +24,7 @@ cloudflare_ddns_container_env_v6:
   "API_KEY": "{{ cloudflare_ddns_container_api_token | quote }}"
   "ZONE": "{{ cloudflare_ddns_container_zone | quote }}"
   "SUBDOMAIN": "{{ cloudflare_ddns_container_subdomain | quote }}"
-  "PROXIED": "{{ cloudflare_ddns_container_proxied | quote }}"
+  "PROXIED": "{{ cloudflare_ddns_container_proxied | string | lower | quote }}"
   "RRTYPE": "{{ 'AAAA' | quote }}"
 cloudflare_ddns_container_state: "started"
 cloudflare_ddns_container_restart_policy: "unless-stopped"

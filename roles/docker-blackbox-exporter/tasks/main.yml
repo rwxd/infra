@@ -1,0 +1,49 @@
+---
+- name: Create blackbox_exporter directory
+  ansible.builtin.file:
+    path: "{{ blackbox_exporter_container_dir }}"
+    owner: "{{ blackbox_exporter_container_user_id }}"
+    group: "{{ blackbox_exporter_container_group_id }}"
+    mode: 0740
+    recurse: true
+    state: directory
+  become: true
+
+- name: Write blackbox-exporter config
+  ansible.builtin.copy:
+    dest: "{{ blackbox_exporter_container_config_path }}"
+    content: "{{ blackbox_exporter_container_config | to_nice_yaml(explicit_start=True) }}"
+    mode: 0740
+    owner: "{{ blackbox_exporter_container_user_id }}"
+    group: "{{ blackbox_exporter_container_group_id }}"
+  become: true
+  notify: Restart blackbox_exporter container
+
+- name: Create container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ blackbox_exporter_container_networks + blackbox_exporter_container_networks_custom }}"
+
+- name: Make sure the blackbox_exporter container is created and running
+  docker_container:
+    name: "{{ blackbox_exporter_container_name }}"
+    image: "{{ blackbox_exporter_container_image }}"
+    pull: true
+    state: "{{ blackbox_exporter_container_state }}"
+    env: "{{ blackbox_exporter_container_env | combine(blackbox_exporter_container_env_custom) }}"
+    ports: "{{ blackbox_exporter_container_ports }}"
+    volumes:
+      - "{{ blackbox_exporter_container_config_path }}:/config/blackbox.yml"
+    command: "{{ blackbox_exporter_container_commands + blackbox_exporter_container_commands_custom }}"
+    networks: "{{ blackbox_exporter_container_networks + blackbox_exporter_container_networks_custom }}"
+    restart_policy: "{{ blackbox_exporter_container_restart_policy }}"
+    labels: "{{ blackbox_exporter_container_labels | combine(blackbox_exporter_container_labels_custom) }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
