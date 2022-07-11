@@ -1,0 +1,25 @@
+---
+blackbox_exporter_container_name: blackbox_exporter
+blackbox_exporter_container_image: docker.io/prom/blackbox-exporter:v0.21.1
+blackbox_exporter_container_ports:
+  - "9115:9115"
+blackbox_exporter_container_state: started
+blackbox_exporter_container_user_id: 1000
+blackbox_exporter_container_group_id: 1000
+blackbox_exporter_container_env:
+  "PUID": "{{ blackbox_exporter_container_user_id | quote }}"
+  "PGID": "{{ blackbox_exporter_container_group_id | quote }}"
+  "TZ": "{{ blackbox_exporter_container_timezone | default('Europe/Berlin') | quote }}"
+blackbox_exporter_container_env_custom: {}
+blackbox_exporter_container_user: blackbox_exporter
+blackbox_exporter_container_restart_policy: unless-stopped
+blackbox_exporter_container_dir: "/var/containers/blackbox_exporter/"
+blackbox_exporter_container_config_path: "{{ blackbox_exporter_container_dir }}/blackbox.yml"
+blackbox_exporter_container_config: {}
+blackbox_exporter_container_commands:
+  - "--config.file=/config/blackbox.yml"
+blackbox_exporter_container_commands_custom: []
+blackbox_exporter_container_labels: {}
+blackbox_exporter_container_labels_custom: {}
+blackbox_exporter_container_networks: []
+blackbox_exporter_container_networks_custom: []

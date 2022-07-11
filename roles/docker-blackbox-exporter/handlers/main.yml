@@ -1,0 +1,6 @@
+---
+- name: Restart blackbox_exporter container
+  ansible.builtin.command:
+    cmd: "docker restart {{ blackbox_exporter_container_name }}"
+  become: true
+  when: "blackbox_exporter_container_state == 'started'"
