@@ -48,6 +48,14 @@
       tags: firewall
       when: firewalld is defined and firewalld
 
+    - name: Include ufw-ddns-port role
+      ansible.builtin.include_role:
+        name: ufw_ddns_port
+        apply:
+          tags: ufw
+      tags: ufw
+      when: ufw_ddns_port
+
     - name: Include ansible-disk role
       ansible.builtin.include_role:
         name: ansible-disk
