@@ -44,8 +44,8 @@
       ansible.builtin.include_role:
         name: firewalld
         apply:
-          tags: config
-      tags: config
+          tags: firewall
+      tags: firewall
       when: firewalld is defined and firewalld
 
     - name: Include ansible-disk role
@@ -127,14 +127,6 @@
           become: true
       when: node_exporter is defined and node_exporter
       tags: node_exporter
-
-    - name: Include fritz-exporter role
-      ansible.builtin.include_role:
-        name: docker-fritz-exporter
-        apply:
-          tags: fritz_exporter
-      when: fritz_exporter_container is defined and fritz_exporter_container
-      tags: fritz_exporter
 
     - name: Include fritz-exporter-new role
       ansible.builtin.include_role:
