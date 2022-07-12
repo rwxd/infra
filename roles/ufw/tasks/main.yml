@@ -1,0 +1,39 @@
+---
+- name: Install ufw
+  ansible.builtin.package:
+    name: ufw
+    state: present
+  become: true
+
+- name: Configure ufw rules
+  ansible.builtin.ufw:
+    rule: "{{ item.rule }}"
+    port: "{{ item.port | default(omit) }}"
+    proto: "{{ item.proto | default(omit) }}"
+    from_port: "{{ item.from_port | default(omit) }}"
+    to_port: "{{ item.to_port | default(omit) }}"
+    src: "{{ item.src | default(omit) }}"
+    dest: "{{ item.dest | default(omit) }}"
+    direction: "{{ item.direction | default(omit) }}"
+    interface: "{{ item.interface | default(omit) }}"
+    log: "{{ item.log | default(false) }}"
+    comment: "{{ item.comment | default(omit) }}"
+    delete: "{{ item.delete | default(omit) }}"
+  become: true
+  notify: Reload ufw
+  with_items: "{{ ufw_rules }}"
+
+- name: Configure ufw default rules
+  ansible.builtin.ufw:
+    default: "{{ item.default }}"
+    direction: "{{ item.direction }}"
+  become: true
+  with_items: "{{ ufw_default_rules }}"
+
+- name: Enable ufw
+  ansible.builtin.ufw:
+    state: enabled
+  become: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

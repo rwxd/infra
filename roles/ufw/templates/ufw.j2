@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+# /etc/default/ufw
+
+IPV6={{ 'yes' if ufw_ipv6 else 'no' }}
