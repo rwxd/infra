@@ -1,0 +1,35 @@
+---
+- name: Ensure dig is installed
+  ansible.builtin.package:
+    name: dnsutils
+    state: present
+  become: true
+
+- name: Copy script
+  ansible.builtin.copy:
+    src: files/ufw-ddns-port
+    dest: /usr/local/bin/ufw-ddns-port
+    mode: 0744
+    owner: root
+    group: root
+  become: true
+
+- name: Create env for cronjob
+  ansible.builtin.cron:
+    name: "PATH"
+    env: true
+    job: "PATH=/sbin:/bin:/usr/sbin:/usr/bin/usr/local/bin"
+    cron_file: "ufw-ddns-port"
+    user: root
+  become: true
+
+- name: Create cronjob
+  ansible.builtin.cron:
+    name: "UFW DDNS Host {{ item.name }} Port {{ item.port }}"
+    job: "/usr/local/bin/ufw-ddns-port {{ item.name }} {{ item.port }}"
+    cron_file: "ufw-ddns-port"
+    minute: "*/5"
+    state: "{{ item.state | default('present') }}"
+    user: "{{ item.user | default('root') }}"
+  become: true
+  with_items: "{{ ufw_ddns_port_hosts }}"

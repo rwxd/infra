@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+DOMAIN="$1"
+PORT="$2"
+
+if [[ -z "$DOMAIN" ]]; then
+        echo "Choose a domain"
+        exit 1
+fi
+
+if [[ -z "$PORT" ]]; then
+        echo "Choose a domain"
+        exit 1
+fi
+
+echo "Running for $DOMAIN:$PORT"
+
+versions=(4 6)
+for version in "${versions[@]}"; do
+    echo "Checking ipv$version"
+
+    if [ "$version" = "4" ]; then
+        new_ip=$(dig +short A "$DOMAIN" || true)
+    else
+        new_ip=$(dig +short AAAA "$DOMAIN" || true)
+    fi
+
+    echo "Found ipv$version \"$new_ip\" via dns"
+    comment="$DOMAIN $PORT v$version"
+    old_ip=$(ufw status | grep "$comment" | head -n1 | tr -s ' ' | cut -f3 -d ' ' || true)
+
+    echo "Found ipv$version \"$old_ip\" in rules"
+    if ! [[ "$new_ip" = "$old_ip" ]]; then
+        echo "updating v$version"
+        if [[ -n "$old_ip" ]]; then
+            rule="ufw delete allow from $old_ip to any port $PORT"
+            echo "executing: $rule"
+            eval "$rule"
+        fi
+
+        if [[ -n "$new_ip" ]]; then
+            rule="ufw allow from $new_ip to any port $PORT comment \"$comment\""
+            echo "executing: $rule"
+            eval "$rule"
+        fi
+    fi
+done
