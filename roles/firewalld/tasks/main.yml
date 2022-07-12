@@ -5,7 +5,14 @@
     state: present
     update_cache: true
     cache_valid_time: 3600
+  become: true
   when: ansible_distribution in ["Debian", "Ubuntu"]
+
+- name: Install firewalld on other systems
+  ansible.builtin.package:
+    name: firewalld
+  become: true
+  when: ansible_distribution not in ["Debian", "Ubuntu"]
 
 - name: Set firewall rule
   ansible.posix.firewalld:
@@ -16,12 +23,14 @@
     state: "{{ rule.state }}"
     source: "{{ rule.source | default(omit) }}"
     target: "{{ rule.target | default(omit) }}"
+  become: true
   when: >
     rule.state is defined
     and rule.state in ["disabled", "enabled"]
   loop: "{{ firewalld_rules }}"
   loop_control:
     loop_var: rule
+  notify: Reload firewalld
 
 - name: Set state of firewall rule
   ansible.posix.firewalld:
@@ -29,20 +38,21 @@
     port: "{{ rule.port | default(omit) }}"
     zone: "{{ rule.zone | default('public') }}"
     state: "{{ rule.state }}"
+  become: true
   when: >
     rule.state is defined
     and rule.state in ["present", "absent"]
   loop: "{{ firewalld_rules }}"
   loop_control:
     loop_var: rule
+  notify: Reload firewalld
 
 - name: Start and enable firewalld
   ansible.builtin.service:
     name: firewalld
     state: started
     enabled: true
+  become: true
 
-- name: Reload firewalld
-  ansible.builtin.service:
-    name: firewalld
-    state: reloaded
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
