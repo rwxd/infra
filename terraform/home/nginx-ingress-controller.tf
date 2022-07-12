@@ -9,7 +9,7 @@ resource "helm_release" "nginx-ingress-controller" {
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
   namespace  = "nginx-ingress-controller"
-  version    = "4.1.4"
+  version    = "4.2.0"
 
   depends_on = [helm_release.metallb, kubernetes_namespace.nginx-ingress-controller]
 
