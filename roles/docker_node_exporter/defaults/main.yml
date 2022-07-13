@@ -1,0 +1,26 @@
+---
+node_exporter_container_name: node_exporter
+node_exporter_container_image: "prom/node-exporter:v1.3.1"
+node_exporter_container_ports:
+  - "9100:9100"
+node_exporter_container_state: started
+node_exporter_container_user: node_exporter
+node_exporter_container_user_id: 1000
+node_exporter_container_group_id: 1000
+node_exporter_container_env:
+  "PUID": "{{ node_exporter_container_user_id | quote }}"
+  "PGID": "{{ node_exporter_container_group_id | quote }}"
+  "TZ": "{{ node_exporter_container_timezone | default('Europe/Berlin') | quote }}"
+node_exporter_container_env_custom: {}
+node_exporter_container_restart_policy: unless-stopped
+node_exporter_container_dir: "/var/containers/node_exporter/"
+node_exporter_container_labels: {}
+node_exporter_container_labels_custom: {}
+node_exporter_container_commands:
+    - "--path.procfs=/host/proc"
+    - "--path.rootfs=/rootfs"
+    - "--path.sysfs=/host/sys"
+    - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+node_exporter_container_commands_custom: []
+node_exporter_container_networks: []
+node_exporter_container_networks_custom: []

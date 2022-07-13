@@ -54,7 +54,7 @@
         apply:
           tags: ufw
       tags: ufw
-      when: ufw
+      when: ufw is defined and ufw
 
     - name: Include ufw-ddns-port role
       ansible.builtin.include_role:
@@ -62,7 +62,7 @@
         apply:
           tags: ufw
       tags: ufw
-      when: ufw_ddns_port
+      when: ufw_ddns_port is defined and ufw_ddns_port
 
     - name: Include ansible-disk role
       ansible.builtin.include_role:
@@ -141,7 +141,7 @@
         apply:
           tags: node_exporter
           become: true
-      when: node_exporter is defined and node_exporter
+      when: node_exporter_cert is defined and node_exporter_cert
       tags: node_exporter
 
     - name: Include node exporter role
@@ -154,6 +154,18 @@
       #   cert_file: /etc/node_exporter/tls.cert
       #   key_file: /etc/node_exporter/tls.key
       when: node_exporter is defined and node_exporter
+      tags: node_exporter
+
+    - name: Include node exporter container role
+      ansible.builtin.include_role:
+        name: docker_node_exporter
+        apply:
+          tags: node_exporter
+          become: true
+      # vars:
+      #   cert_file: /etc/node_exporter/tls.cert
+      #   key_file: /etc/node_exporter/tls.key
+      when: node_exporter_container is defined and node_exporter_container
       tags: node_exporter
 
     - name: Include fritz-exporter-new role
