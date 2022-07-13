@@ -1,0 +1,32 @@
+---
+- name: Create node_exporter cert dir
+  ansible.builtin.file:
+    path: "/etc/node_exporter"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+  become: true
+
+- name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+  community.crypto.openssl_privatekey:
+    path: /etc/node_exporter/tls.key
+    cipher: auto
+    passphrase: hrohqjdqwhoertpqwkdalqklhzrioHwhr
+    size: 4096
+
+- name: Create csr
+  community.crypto.openssl_csr:
+    path: /etc/node_exporter/tls.csr
+    privatekey_path: /etc/node_exporter/tls.key
+    privatekey_passphrase: hrohqjdqwhoertpqwkdalqklhzrioHwhr
+    common_name: node-exporter
+
+- name: Generate node exporter certificate
+  community.crypto.x509_certificate:
+    path: /etc/node_exporter/tls.cert
+    csr_path: /etc/node_exporter/tls.csr
+    privatekey_path: /etc/node_exporter/tls.key
+    privatekey_passphrase: hrohqjdqwhoertpqwkdalqklhzrioHwhr
+    provider: selfsigned
+  become: true
