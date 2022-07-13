@@ -1,6 +1,6 @@
 # infrastructure
 
-## What do we have here?
+## What is this?
 
 Ansible Roles & Playbooks to configure Pi's with a default configuration, hardening, Wireguard,
 Cloudflare Dynamic DNS, Docker & K3s.
