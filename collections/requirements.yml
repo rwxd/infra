@@ -11,3 +11,6 @@ collections:
 
   - name: devsec.hardening
     version: 7.14.3
+
+  - name: community.crypto
+    version: 2.4.0

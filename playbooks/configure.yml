@@ -135,12 +135,24 @@
       when: caddy is defined and caddy
       tags: caddy
 
+    - name: Include node exporter cert role
+      ansible.builtin.include_role:
+        name: node_exporter_certificate
+        apply:
+          tags: node_exporter
+          become: true
+      when: node_exporter is defined and node_exporter
+      tags: node_exporter
+
     - name: Include node exporter role
       ansible.builtin.include_role:
         name: ansible-node-exporter
         apply:
           tags: node_exporter
           become: true
+      # vars:
+      #   cert_file: /etc/node_exporter/tls.cert
+      #   key_file: /etc/node_exporter/tls.key
       when: node_exporter is defined and node_exporter
       tags: node_exporter
 
