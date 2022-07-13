@@ -1,0 +1,5 @@
+- name: Restart traefik container
+  ansible.builtin.command:
+    cmd: "docker restart {{ traefik_container_name }}"
+  become: true
+  when: "traefik_container_state == 'started'"

@@ -1,0 +1,37 @@
+---
+- name: Create node_exporter directory
+  ansible.builtin.file:
+    path: "{{ node_exporter_container_dir }}"
+    owner: "{{ node_exporter_container_user_id }}"
+    group: "{{ node_exporter_container_group_id }}"
+    mode: 0740
+    state: directory
+  become: true
+
+- name: Create container networks
+  docker_network:
+    name: "{{ item.name }}"
+    state: present
+  become: true
+  with_items: "{{ node_exporter_container_networks + node_exporter_container_networks_custom  }}"
+
+- name: Make sure the node_exporter container is created and running
+  docker_container:
+    name: "{{ node_exporter_container_name }}"
+    image: "{{ node_exporter_container_image }}"
+    pull: true
+    state: "{{ node_exporter_container_state }}"
+    env: "{{ node_exporter_container_env | combine(node_exporter_container_env_custom) }}"
+    ports: "{{ node_exporter_container_ports }}"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks: "{{ node_exporter_container_networks + node_exporter_container_networks_custom  }}"
+    restart_policy: "{{ node_exporter_container_restart_policy }}"
+    labels: "{{ node_exporter_container_labels | combine(node_exporter_container_labels_custom) }}"
+    command: "{{ node_exporter_container_commands + node_exporter_container_commands_custom }}"
+    log_driver: json-file
+    log_opt:
+      max-size: 10m
+  become: true

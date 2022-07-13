@@ -124,13 +124,13 @@ groups:
           summary: Blackbox probe failed (instance {{ $labels.instance }})
           description: "Probe failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxSlowProbe
-        expr: avg_over_time(probe_duration_seconds[1m]) > 1
+        expr: avg_over_time(probe_duration_seconds[1m]) > 5
         for: 1m
         labels:
           severity: warning
         annotations:
           summary: Blackbox slow probe (instance {{ $labels.instance }})
-          description: "Blackbox probe took more than 1s to complete\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Blackbox probe took more than 5s to complete\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: BlackboxProbeHttpFailure
         expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
@@ -286,7 +286,7 @@ groups:
           description: "Disk latency is growing (write operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostHighCpuLoad
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
-        for: 0m
+        for: 2m
         labels:
           severity: warning
         annotations:

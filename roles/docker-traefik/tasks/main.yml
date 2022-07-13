@@ -5,7 +5,6 @@
     owner: "{{ traefik_container_user_id }}"
     group: "{{ traefik_container_group_id }}"
     mode: 0740
-    recurse: true
     state: directory
   become: true
 
@@ -14,10 +13,19 @@
     path: "{{ traefik_container_certs_dir }}"
     owner: "{{ traefik_container_user_id }}"
     group: "{{ traefik_container_group_id }}"
-    mode: 0740
-    recurse: true
+    mode: 0700
     state: directory
   become: true
+
+- name: Write traefik dynamic configuration
+  ansible.builtin.copy:
+    dest: "{{ traefik_container_dynamic_conf_path }}"
+    content: "{{ traefik_container_dynamic_conf | to_nice_yaml(explicit_start=True) }}"
+    mode: 0740
+    owner: "{{ traefik_container_user_id }}"
+    group: "{{ traefik_container_group_id }}"
+  become: true
+  notify: Restart traefik container
 
 - name: Create container networks
   docker_network:
@@ -37,6 +45,7 @@
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ traefik_container_certs_dir }}:/certs/"
+      - "{{ traefik_container_dynamic_conf_path }}:/dynamic.yml"
     networks: "{{ traefik_container_networks }}"
     restart_policy: "{{ traefik_container_restart_policy }}"
     labels: "{{ traefik_container_labels | combine(traefik_container_labels_custom) }}"
@@ -45,3 +54,6 @@
     log_opt:
       max-size: 10m
   become: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
