@@ -3,7 +3,7 @@ groups:
     rules:
       - alert: PrometheusJobMissing
         expr: absent(up{job="prometheus"})
-        for: 0m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -11,7 +11,7 @@ groups:
           description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: PrometheusTargetMissing
         expr: up == 0
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
@@ -19,7 +19,7 @@ groups:
           description: "A Prometheus target has disappeared. An exporter might be crashed.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: PrometheusAllTargetsMissing
         expr: sum by (job) (up) == 0
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
@@ -34,16 +34,16 @@ groups:
           summary: Prometheus configuration reload failure (instance {{ $labels.instance }})
           description: "Prometheus configuration reload error\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: PrometheusTooManyRestarts
-        expr: changes(process_start_time_seconds{job=~"prometheus|pushgateway|alertmanager"}[15m]) > 2
+        expr: changes(process_start_time_seconds{job=~"prometheus|pushgateway|alertmanager"}[15m]) > 10
         for: 0m
         labels:
           severity: warning
         annotations:
           summary: Prometheus too many restarts (instance {{ $labels.instance }})
-          description: "Prometheus has restarted more than twice in the last 15 minutes. It might be crashlooping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Prometheus has restarted more than ten times in the last 15 minutes. It might be crashlooping.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: PrometheusAlertmanagerJobMissing
         expr: absent(up{job="alertmanager"})
-        for: 0m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -51,7 +51,7 @@ groups:
           description: "A Prometheus AlertManager job has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: PrometheusAlertmanagerConfigurationReloadFailure
         expr: alertmanager_config_last_reload_successful != 1
-        for: 0m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -59,7 +59,7 @@ groups:
           description: "AlertManager configuration reload error\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: PrometheusNotConnectedToAlertmanager
         expr: prometheus_notifications_alertmanagers_discovered < 1
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
@@ -99,7 +99,7 @@ groups:
           description: "The Prometheus notification queue has not been empty for 10 minutes\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: PrometheusAlertmanagerNotificationFailing
         expr: rate(alertmanager_notifications_failed_total[1m]) > 0
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
@@ -117,7 +117,7 @@ groups:
     rules:
       - alert: BlackboxProbeFailed
         expr: probe_success == 0
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
@@ -125,7 +125,7 @@ groups:
           description: "Probe failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxSlowProbe
         expr: avg_over_time(probe_duration_seconds[1m]) > 5
-        for: 1m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -134,7 +134,7 @@ groups:
 
       - alert: BlackboxProbeHttpFailure
         expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
@@ -166,7 +166,7 @@ groups:
           description: "SSL certificate has expired already\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxProbeSlowHttp
         expr: avg_over_time(probe_http_duration_seconds[1m]) > 1
-        for: 1m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -174,7 +174,7 @@ groups:
           description: "HTTP request took more than 1s\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: BlackboxProbeSlowPing
         expr: avg_over_time(probe_icmp_duration_seconds[1m]) > 1
-        for: 1m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -184,7 +184,7 @@ groups:
     rules:
       - alert: HostOutOfMemory
         expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
-        for: 2m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -192,7 +192,7 @@ groups:
           description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostMemoryUnderMemoryPressure
         expr: rate(node_vmstat_pgmajfault[1m]) > 1000
-        for: 2m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -224,7 +224,7 @@ groups:
           description: "Disk is probably reading too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualDiskWriteRate
         expr: sum by (instance) (rate(node_disk_written_bytes_total[2m])) / 1024 / 1024 > 50
-        for: 2m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -270,7 +270,7 @@ groups:
           description: "Filesystem is predicted to run out of inodes within the next 24 hours at current write rate\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualDiskReadLatency
         expr: rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 0.1 and rate(node_disk_reads_completed_total[1m]) > 0
-        for: 2m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -278,7 +278,7 @@ groups:
           description: "Disk latency is growing (read operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostUnusualDiskWriteLatency
         expr: rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 0.1 and rate(node_disk_writes_completed_total[1m]) > 0
-        for: 2m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -286,7 +286,7 @@ groups:
           description: "Disk latency is growing (write operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostHighCpuLoad
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
-        for: 2m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -294,7 +294,7 @@ groups:
           description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostSystemdServiceCrashed
         expr: node_systemd_unit_state{state="failed"} == 1
-        for: 0m
+        for: 3m
         labels:
           severity: warning
         annotations:
@@ -302,7 +302,7 @@ groups:
           description: "systemd service crashed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostCpuHighIowait
         expr: avg by (instance) (rate(node_cpu_seconds_total{mode="iowait"}[5m])) * 100 > 5
-        for: 0m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -313,7 +313,7 @@ groups:
       # Please read: https://github.com/samber/awesome-prometheus-alerts/issues/58
       - alert: HostContextSwitching
         expr: (rate(node_context_switches_total[5m])) / (count without(cpu, mode) (node_cpu_seconds_total{mode="idle"})) > 1000
-        for: 0m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -321,7 +321,7 @@ groups:
           description: "Context switching is growing on node (> 1000 / s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostSwapIsFillingUp
         expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80
-        for: 2m
+        for: 5m
         labels:
           severity: warning
         annotations:
@@ -337,7 +337,7 @@ groups:
           description: "Physical hardware component too hot\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostNodeOvertemperatureAlarm
         expr: node_hwmon_temp_crit_alarm_celsius == 1
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
@@ -345,7 +345,7 @@ groups:
           description: "Physical node temperature alarm triggered\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostRaidArrayGotInactive
         expr: node_md_state{state="inactive"} > 0
-        for: 0m
+        for: 5m
         labels:
           severity: critical
         annotations:
