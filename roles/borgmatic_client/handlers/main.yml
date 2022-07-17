@@ -1,0 +1,6 @@
+---
+- name: Initialize repositories
+  ansible.builtin.command:
+    cmd: "borgmatic --init -c /etc/borgmatic/{{ item.name }}.yml --encryption repokey"
+  become: true
+  with_items: "{{ borgmatic_backups }}"

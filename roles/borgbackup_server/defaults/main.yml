@@ -1,0 +1,4 @@
+---
+borg_server_user: svc.borg
+borg_server_dir: "/var/borg_server"
+borg_server_clients: []

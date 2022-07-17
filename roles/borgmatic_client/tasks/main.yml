@@ -1,0 +1,36 @@
+---
+- name: Ensure borgbackup & borgmatic are installed
+  ansible.builtin.package:
+    name:
+      - borgbackup
+      - borgmatic
+  become: true
+
+- name: Ensure root has a SSH Key for borg
+  ansible.builtin.user:
+    name: root
+    generate_ssh_key: true
+    ssh_key_file: "{{ borg_root_ssh_key_path }}"
+    ssh_key_type: "{{ borg_root_ssh_key_type }}"
+    state: present
+  become: true
+  register: root_user
+
+- name: Set fact for public ssh key of the root user
+  ansible.builtin.set_fact:
+    borg_public_ssh_key: "{{ root_user['ssh_public_key'] }}"
+
+- name: Create borgmatic directory
+  ansible.builtin.file:
+    path: "/etc/borgmatic"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+  become: true
+
+- name: Create Borgmatic configuration
+  include_tasks: config.yml
+  loop: "{{ borgmatic_backups }}"
+  loop_control:
+    loop_var: backup

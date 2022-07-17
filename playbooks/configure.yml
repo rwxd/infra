@@ -87,6 +87,22 @@
       when: docker is defined and docker
       tags: docker
 
+    - name: Include borgmatic client role
+      ansible.builtin.include_role:
+        name: borgmatic_client
+        apply:
+          tags: borg
+      when: borgmatic_client is defined and borgmatic_client
+      tags: borg
+
+    - name: Include borg server role
+      ansible.builtin.include_role:
+        name: borgbackup_server
+        apply:
+          tags: borg
+      when: borg_server is defined and borg_server
+      tags: borg
+
     - name: Include docker role
       ansible.builtin.include_role:
         name: geerlingguy.docker
@@ -144,17 +160,17 @@
       when: node_exporter_cert is defined and node_exporter_cert
       tags: node_exporter
 
-    - name: Include node exporter role
-      ansible.builtin.include_role:
-        name: ansible-node-exporter
-        apply:
-          tags: node_exporter
-          become: true
-      # vars:
-      #   cert_file: /etc/node_exporter/tls.cert
-      #   key_file: /etc/node_exporter/tls.key
-      when: node_exporter is defined and node_exporter
-      tags: node_exporter
+    # - name: Include node exporter role
+    #   ansible.builtin.include_role:
+    #     name: ansible-node-exporter
+    #     apply:
+    #       tags: node_exporter
+    #       become: true
+    #   # vars:
+    #   #   cert_file: /etc/node_exporter/tls.cert
+    #   #   key_file: /etc/node_exporter/tls.key
+    #   when: node_exporter is defined and node_exporter
+    #   tags: node_exporter
 
     - name: Include node exporter container role
       ansible.builtin.include_role:

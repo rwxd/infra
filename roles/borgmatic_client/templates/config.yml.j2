@@ -1,0 +1,93 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+---
+# Full config: https://torsion.org/borgmatic/docs/reference/config.yaml
+
+location:
+  source_directories:
+{% for dir in backup.source_directories %}
+    - "{{ dir }}"
+{% endfor %}
+  repositories:
+{% for repo in backup.repositories %}
+    - "{{ repo }}"
+{% endfor %}
+  # Any paths matching these patterns are excluded from backups. Globs and tildes
+  # are expanded. See the output of "borg help patterns" for more details.
+  exclude_patterns:
+{% for dir in backup.exclude_patterns %}
+    - "{{ dir }}"
+{% endfor %}
+  exclude_caches: true
+  # Exclude directories that contain a file with the given filename.
+  exclude_if_present:
+    - .nobackup
+storage:
+  encryption_passphrase: "{{ backup.passphrase }}"
+{% if backup.ssh_command is defined and backup.ssh_command %}
+  ssh_command: {{ backup.ssh_command }}
+{% endif %}
+  lock_wait: 5
+  relocated_repo_access_is_ok: true
+
+retention:
+{% if backup.retention.keep_secondly is defined %}
+    # Number of secondly archives to keep.
+    keep_secondly: {{ backup.retention.keep_secondly }}
+{% endif %}
+
+{% if backup.retention.keep_minutely is defined %}
+    # Number of minutely archives to keep.
+    keep_minutely: {{ backup.retention.keep_minutely }}
+{% endif %}
+
+{% if backup.retention.keep_hourly is defined %}
+    # Number of hourly archives to keep.
+    keep_hourly: {{ backup.retention.keep_hourly }}
+{% endif %}
+
+{% if backup.retention.keep_daily is defined %}
+    # Number of daily archives to keep.
+    keep_daily: {{ backup.retention.keep_daily }}
+{% endif %}
+
+{% if backup.retention.keep_weekly is defined %}
+    # Number of weekly archives to keep.
+    keep_weekly: {{ backup.retention.keep_weekly }}
+{% endif %}
+
+{% if backup.retention.keep_monthly is defined %}
+    # Number of monthly archives to keep.
+    keep_monthly: {{ backup.retention.keep_monthly }}
+{% endif %}
+
+{% if backup.retention.keep_yearly is defined %}
+  # Number of yearly archives to keep.
+  keep_yearly: "{{ backup.retention.keep_yearly }}"
+{% endif %}
+
+consistency:
+    # List of one or more consistency checks to run: "repository",
+    # "archives", "data", and/or "extract". Defaults to
+    # "repository" and "archives". Set to "disabled" to disable
+    # all consistency checks. "repository" checks the consistency
+    # of the repository, "archives" checks all of the archives,
+    # "data" verifies the integrity of the data within the
+    # archives, and "extract" does an extraction dry-run of the
+    # most recent archive. Note that "data" implies "archives".
+    checks:
+    {% for checks in backup.checks %}
+        - {{ checks }}
+    {% endfor %}
+
+    # Restrict the number of checked archives to the last n. Applies only to the "archives" check.
+    check_last: {{ backup.checks_last | default(3) }}
+
+# Shell commands or scripts to execute before and after a backup or if an error has occurred.
+# IMPORTANT: All provided commands and scripts are executed with user permissions of borgmatic.
+# Do not forget to set secure permissions on this file as well as on any script listed (chmod 0700) to
+# prevent potential shell injection or privilege escalation.
+hooks:
+{% for hook in backup.hooks %}
+    {{ hook }}:
+        {{ backup.hooks[hook] | to_nice_yaml(indent=2) | trim | indent(8) }}
+{% endfor %}

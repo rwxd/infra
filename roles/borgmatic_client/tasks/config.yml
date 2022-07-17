@@ -1,0 +1,63 @@
+---
+- name: Add borgmatic configuration
+  ansible.builtin.template:
+    src: config.yml.j2
+    dest: "/etc/borgmatic/{{ backup.name }}.yml"
+    mode: 0600
+    owner: root
+    group: root
+  become: true
+  notify: Initialize repositories
+
+- name: Add cron jobs for large repos
+  block:
+    - name: Add cron job for backup
+      ansible.builtin.cron:
+        name: "{{ backup.name }}"
+        minute: "{{ backup.cron_minute }}"
+        hour: "{{ backup.cron_hour }}"
+        user: root
+        cron_file: "borgmatic-{{ backup.name }}"
+        job: "borgmatic -c /etc/borgmatic/{{ backup.name }}.yml --create --prune"
+      become: true
+
+    - name: Add cron job for infrequent checks
+      ansible.builtin.cron:
+        name: "{{ backup.name }}-check"
+        minute: "{{ backpup.cron_check_minute }}"
+        hour: "{{ backup.cron_check_hour }}"
+        day: "{{ backup.cron_check_day }}"
+        user: "root"
+        cron_file: "borgmatic-{{ backup.name }}"
+        job: "borgmatic -c /etc/borgmatic/{{ backup.name }}.yml --check"
+      become: true
+  when: backup.large_repo is defined and backup.large_repo
+
+- name: Add cron job for normal repo
+  block:
+    - name: Add cron job for backup
+      ansible.builtin.cron:
+        name: "{{ backup.name }}"
+        minute: "{{ backup.cron_minute }}"
+        hour: "{{ backup.cron_hour }}"
+        user: root
+        cron_file: "borgmatic-{{ backup.name }}"
+        job: "borgmatic -c /etc/borgmatic/{{ backup.name }}.yml"
+      become: true
+
+    - name: Ensure separate check cron job is absent
+      ansible.builtin.cron:
+        name: "{{ backup.name }}-check"
+        cron_file: "borgmatic-{{ backup.name }}"
+        state: absent
+      become: true
+  when: backup.large_repo is not defined or not backup.large_repo
+
+- name: Set PATH for cron job
+  ansible.builtin.cron:
+    user: root
+    cron_file: "borgmatic-{{ backup.name }}"
+    name: PATH
+    env: true
+    value: "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+  become: true

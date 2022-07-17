@@ -1,0 +1,37 @@
+---
+borg_root_ssh_key_type: ed25519
+borg_root_ssh_key_path: ".ssh/id_{{ borg_root_ssh_key_type }}"
+
+borgmatic_backups:
+  - name: config
+    passphrase: ''
+    source_directories:
+      - /home
+      - /etc
+      - /opt
+      - /root
+      - /var
+    exclude_patterns:
+        - /opt/containerd
+        - /var/run
+        - /var/lib/docker/overlay2/*
+    hooks:
+      on_error:
+      - echo "`date` - Error while creating a backup."
+      before_backup:
+      - echo "`date` - Starting backup."
+      after_backup:
+      - echo "`date` - Finished backup."
+    cron_hour: "{{ 6 | random(seed=inventory_hostname) }}"
+    cron_minute: "{{ 59 | random(seed=inventory_hostname) }}"
+    cron_checks_day: "{{ range(1, 28) | random(seed=inventory_hostname) }}"
+    cron_checks_hour: "{{ range(9, 24) | random(seed=inventory_hostname) }}"
+    cron_checks_minute: "{{ 59 | random(seed=inventory_hostname) }}"
+    checks:
+      - repository
+    large_repo: false
+    retention:
+      keep_hourly: 3
+      keep_daily: 7
+      keep_weekly: 4
+      keep_monthly: 6
