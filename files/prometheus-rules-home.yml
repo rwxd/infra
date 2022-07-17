@@ -301,8 +301,8 @@ groups:
           summary: Host systemd service crashed (instance {{ $labels.instance }})
           description: "systemd service crashed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
       - alert: HostCpuHighIowait
-        expr: avg by (instance) (rate(node_cpu_seconds_total{mode="iowait"}[5m])) * 100 > 5
-        for: 5m
+        expr: avg by (instance) (rate(node_cpu_seconds_total{mode="iowait"}[30m])) * 100 > 5
+        for: 1m
         labels:
           severity: warning
         annotations:
@@ -312,8 +312,8 @@ groups:
       # Alert threshold depends on nature of application.
       # Please read: https://github.com/samber/awesome-prometheus-alerts/issues/58
       - alert: HostContextSwitching
-        expr: (rate(node_context_switches_total[5m])) / (count without(cpu, mode) (node_cpu_seconds_total{mode="idle"})) > 1000
-        for: 5m
+        expr: (rate(node_context_switches_total[15m])) / (count without(cpu, mode) (node_cpu_seconds_total{mode="idle"})) > 1000
+        for: 1m
         labels:
           severity: warning
         annotations:

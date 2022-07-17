@@ -1,0 +1,41 @@
+---
+- name: Install borg
+  ansible.builtin.package:
+    name: borgbackup
+    state: present
+  become: true
+
+- name: Create borg user
+  ansible.builtin.user:
+    name: "{{ borg_server_user }}"
+    state: present
+  become: true
+
+- name: Create borg server dir
+  ansible.builtin.file:
+    path: "{{ borg_server_dir }}"
+    mode: 0700
+    owner: "{{ borg_server_user }}"
+    group: "{{ borg_server_user }}"
+    state: directory
+  become: true
+
+- name: Create directory for borg clients
+  ansible.builtin.file:
+    path: "{{ borg_server_dir }}{{ item }}"
+    mode: 0700
+    owner: "{{ borg_server_user }}"
+    group: "{{ borg_server_user }}"
+    state: directory
+  with_items: "{{ borg_server_clients }}"
+  become: true
+
+- name: Ensure public ssh keys are permitted
+  ansible.posix.authorized_key:
+    user: "{{ borg_server_user }}"
+    key: "{{ hostvars[item].borg_public_ssh_key }}"
+    state: present
+    key_options: "command=\"cd {{ borg_server_dir }}/{{ item }}; borg serve --restrict-to-path {{ borg_server_dir }}/{{ item }}\",restrict"
+  when: item in hostvars
+  with_items: "{{ borg_server_clients }}"
+  become: true
