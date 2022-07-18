@@ -23,46 +23,44 @@ location:
     - .nobackup
 storage:
   encryption_passphrase: "{{ backup.passphrase }}"
-{% if backup.ssh_command is defined and backup.ssh_command %}
-  ssh_command: {{ backup.ssh_command }}
-{% endif %}
+  ssh_command: "ssh -o StrictHostKeyChecking=no {% if backup.ssh_command is defined %}{{ backup.ssh_command }}{% endif %}"
   lock_wait: 5
   relocated_repo_access_is_ok: true
 
 retention:
 {% if backup.retention.keep_secondly is defined %}
     # Number of secondly archives to keep.
-    keep_secondly: {{ backup.retention.keep_secondly }}
+  keep_secondly: {{ backup.retention.keep_secondly }}
 {% endif %}
 
 {% if backup.retention.keep_minutely is defined %}
     # Number of minutely archives to keep.
-    keep_minutely: {{ backup.retention.keep_minutely }}
+  keep_minutely: {{ backup.retention.keep_minutely }}
 {% endif %}
 
 {% if backup.retention.keep_hourly is defined %}
     # Number of hourly archives to keep.
-    keep_hourly: {{ backup.retention.keep_hourly }}
+  keep_hourly: {{ backup.retention.keep_hourly }}
 {% endif %}
 
 {% if backup.retention.keep_daily is defined %}
     # Number of daily archives to keep.
-    keep_daily: {{ backup.retention.keep_daily }}
+  keep_daily: {{ backup.retention.keep_daily }}
 {% endif %}
 
 {% if backup.retention.keep_weekly is defined %}
     # Number of weekly archives to keep.
-    keep_weekly: {{ backup.retention.keep_weekly }}
+  keep_weekly: {{ backup.retention.keep_weekly }}
 {% endif %}
 
 {% if backup.retention.keep_monthly is defined %}
     # Number of monthly archives to keep.
-    keep_monthly: {{ backup.retention.keep_monthly }}
+  keep_monthly: {{ backup.retention.keep_monthly }}
 {% endif %}
 
 {% if backup.retention.keep_yearly is defined %}
   # Number of yearly archives to keep.
-  keep_yearly: "{{ backup.retention.keep_yearly }}"
+  keep_yearly: {{ backup.retention.keep_yearly }}
 {% endif %}
 
 consistency:

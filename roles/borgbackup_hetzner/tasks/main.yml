@@ -1,39 +1,156 @@
 ---
-- name: Check repopass defined
-  ansible.builtin.assert:
-    that: borgbackup_repopass is defined
+- name: Get storagebox data from hetzner robot
+  ansible.builtin.uri:
+    url: "https://robot-ws.your-server.de/storagebox"
+    user: "{{ borgbackup_hetzner_robot_webservice_user }}"
+    password: "{{ borgbackup_hetzner_robot_webservice_pass }}"
+    method: GET
+    force_basic_auth: true
+  register: storagebox_response
+  delegate_to: localhost
 
-- name: Install borg
-  ansible.builtin.package:
-    name: borg
-    state: present
-  become: true
-  when: ansible_distribution in ["Archlinux"]
+- name: Print storagebox response
+  ansible.builtin.debug:
+    var: storagebox_response
+    verbosity: 1
 
-- name: Install borgbackup
-  ansible.builtin.package:
-    name: borgbackup
-    state: present
-  become: true
-  when: ansible_distribution in ["Debian", "Ubuntu"]
+- name: Set storagebox mount dir
+  ansible.builtin.set_fact:
+    borgbackup_hetzner_complete_mount_dir: "/tmp/borg-hetzner/{{ inventory_hostname }}"
 
-- name: Create borgbackup key directory
+- name: Set storagebox host dir
+  ansible.builtin.set_fact:
+    borgbackup_hetzner_host_dir: "/tmp/borg-hetzner/{{ inventory_hostname }}/{{ borgbackup_hetzner_storagebox_main_dir }}/{{ inventory_hostname }}"
+
+- name: Create temporary mount dir
   ansible.builtin.file:
-    path: "{{ borgbackup_key_dir }}"
+    mode: 0700
     state: directory
-    owner: root
-    group: root
-    mode: 0600
+    path: "{{ borgbackup_hetzner_complete_mount_dir }}"
+  delegate_to: localhost
 
-- name: Check if config exists
-  ansible.builtin.stat:
-    path: "{{ borgbackup_hetzner_config }}"
-  register: config_file_result
+- name: Check if temporary mountpoint is already mounted
+  ansible.builtin.command:
+    cmd: "/bin/mountpoint -q {{ borgbackup_hetzner_complete_mount_dir }}"
+  register: mount_check
+  ignore_errors: true
+  changed_when: mount_check.rc != 0
+  delegate_to: localhost
 
-- name: borg - create log dir
+- name: Mount complete storagebox
+  ansible.builtin.command:
+    cmd: "sshfs -p 23 -o IdentityFile={{ borgbackup_hetzner_storagebox_main_ssh_key }} {{ borgbackup_hetzner_storagebox_main_user }}@{{ borgbackup_hetzner_storagebox_main_storagebox }}:./ {{ borgbackup_hetzner_complete_mount_dir }}"
+  delegate_to: localhost
+  when: mount_check.rc != 0
+
+- name: Create backup dir
   ansible.builtin.file:
-    path: "{{ borgbackup_log_dir }}"
+    mode: 0700
     state: directory
-    owner: root
-    group: root
+    path: "{{ borgbackup_hetzner_host_dir }}"
+  delegate_to: localhost
+
+- name: Create ssh dir
+  ansible.builtin.file:
+    state: directory
+    path: "{{ borgbackup_hetzner_host_dir }}/.ssh"
+    mode: 0700
+  delegate_to: localhost
+
+- name: Ensure public key is in authorized_keys
+  ansible.builtin.lineinfile:
+    path: "{{ borgbackup_hetzner_host_dir }}/.ssh/authorized_keys"
+    line:  "{{ borg_public_ssh_key }}"
+    create: true
     mode: 0600
+    state: present
+  delegate_to: localhost
+
+- name: Unmount storage box
+  ansible.builtin.command:
+    cmd: "umount {{ borgbackup_hetzner_complete_mount_dir }}"
+  when: true
+  delegate_to: localhost
+
+- name: Delete mount dir
+  ansible.builtin.file:
+    state: absent
+    path: "{{ borgbackup_hetzner_complete_mount_dir }}"
+  delegate_to: localhost
+
+- name: Get hetzner subaccount data
+  ansible.builtin.uri:
+    url: "https://robot-ws.your-server.de/storagebox/{{ borgbackup_hetzner_storagebox_id }}/subaccount"
+    user: "{{ borgbackup_hetzner_robot_webservice_user }}"
+    password: "{{ borgbackup_hetzner_robot_webservice_pass }}"
+    method: GET
+    force_basic_auth: true
+  register: subaccounts_response
+  delegate_to: localhost
+
+- name: Print subaccounts response
+  ansible.builtin.debug:
+    var: subaccounts_response
+    verbosity: 1
+
+- name: Get list of subaccounts
+  ansible.builtin.set_fact:
+    storagebox_subaccounts: "{{ subaccounts_response.json | json_query( query )  }}"
+  vars:
+    query: "[].subaccount.comment"
+
+- name: Get subaccount for host if it exist
+  ansible.builtin.set_fact:
+    storagebox_subaccount: "{{ subaccounts_response | json_query( query )  }}"
+  vars:
+    query: "json[?subaccount.comment == '{{ inventory_hostname }}'].subaccount.username"
+  when: inventory_hostname in storagebox_subaccounts
+
+- name: Set subaccount vars
+  ansible.builtin.set_fact:
+    storagebox_user: "{{ storagebox_subaccount[0] }}"
+    storagebox_server: "{{ storagebox_subaccount[0] }}.{{ borgbackup_hetzner_storagebox_domain }}"
+  when: inventory_hostname in storagebox_subaccounts
+
+- name: Print subaccount values
+  ansible.builtin.debug:
+    var: storagebox_subaccount
+    verbosity: 1
+
+- name: Create new subaccount
+  ansible.builtin.uri:
+    url: "https://robot-ws.your-server.de/storagebox/{{ borgbackup_hetzner_storagebox_id }}/subaccount"
+    user: "{{ borgbackup_hetzner_robot_webservice_user }}"
+    password: "{{ borgbackup_hetzner_robot_webservice_pass }}"
+    method: POST
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      homedirectory: "{{ borgbackup_hetzner_storagebox_main_dir }}/{{ inventory_hostname }}"
+      comment: "{{ inventory_hostname }}"
+      ssh: "true"
+      external_reachability: "true"
+  register: create_subaccounts_response
+  delegate_to: localhost
+  when: inventory_hostname not in storagebox_subaccounts
+
+- name: Print create subaccount response
+  ansible.builtin.debug:
+    var: create_subaccounts_response
+    verbosity: 1
+
+- name: Get newly created subaccount
+  ansible.builtin.set_fact:
+    storagebox_subaccount: "{{ create_subaccounts_response.json.subaccount.username  }}"
+  when: inventory_hostname not in storagebox_subaccounts
+
+- name: print subaccount
+  ansible.builtin.debug:
+    var: storagebox_subaccount
+    verbosity: 1
+
+- name: Set subaccount vars
+  ansible.builtin.set_fact:
+    storagebox_user: "{{ storagebox_subaccount }}"
+    storagebox_server: "{{ storagebox_subaccount }}.{{ borgbackup_hetzner_storagebox_domain }}"
+  when: inventory_hostname not in storagebox_subaccounts
