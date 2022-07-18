@@ -1,28 +1,15 @@
 ---
-borgbackup_key_dir: /etc/borg/keys/
-borgbackup_hetzner_config: /etc/borg/hetzner.conf
-borgbackup_log_dir: /var/log/borg
+borgbackup_hetzner_server_id: 21923912
+borgbackup_hetzner_storagebox_id: changeme
+borgbackup_hetzner_storagebox_port: 23
 
-borgbackup_enabled: true
-borgbackup_source_directories:
-  - /etc/
-  - /home
-  - /etc
-  - /opt
-  - /root
+borgbackup_hetzner_storagebox_main_user: ""
+borgbackup_hetzner_storagebox_main_storagebox: "{{ borgbackup_hetzner_storagebox_main_user }}.your-storagebox.de"
+borgbackup_hetzner_storagebox_main_dir: backup
 
-borgbackup_exclude_patterns:
-  - /opt/containerd
-  - /var/run
-  - /var/lib/docker/overlay2/*
+borgbackup_hetzner_robot_webservice_user: changeme
+borgbackup_hetzner_robot_webservice_pass: changeme
 
-borgbackup_keep_hourly: 24
-borgbackup_keep_daily: 7
-borgbackup_keep_weekly: 4
-borgbackup_keep_monthly: 2
+borgbackup_hetzner_storagebox_domain: "your-backup.de"
 
-borgbackup_checks:
-  - repository
-  - archives
-
-borgbackup_before_backup: []
+borgbackup_hetzner_storagebox_main_ssh_key: /root/.ssh/id_rsa

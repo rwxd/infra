@@ -87,21 +87,6 @@
       when: docker is defined and docker
       tags: docker
 
-    - name: Include borgmatic client role
-      ansible.builtin.include_role:
-        name: borgmatic_client
-        apply:
-          tags: borg
-      when: borgmatic_client is defined and borgmatic_client
-      tags: borg
-
-    - name: Include borg server role
-      ansible.builtin.include_role:
-        name: borgbackup_server
-        apply:
-          tags: borg
-      when: borg_server is defined and borg_server
-      tags: borg
 
     - name: Include docker role
       ansible.builtin.include_role:

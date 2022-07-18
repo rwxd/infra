@@ -1,0 +1,32 @@
+---
+- name: Configure backup
+  hosts: all
+  debugger: on_failed
+  tasks:
+    - name: Include borgmatic client role
+      ansible.builtin.include_role:
+        name: borgmatic_client
+        apply:
+          tags: borg
+      when: borgmatic_client is defined and borgmatic_client
+      tags: borg
+
+    - name: Include borg server role
+      ansible.builtin.include_role:
+        name: borgbackup_server
+        apply:
+          tags: borg
+      when: borg_server is defined and borg_server
+      tags: borg
+
+    - name: Include borg hetzner role
+      ansible.builtin.include_role:
+        name: borgbackup_hetzner
+        apply:
+          tags:
+            - borg
+            - borg-hetzner
+      when: borg_hetzner is defined and borg_hetzner
+      tags:
+        - borg
+        - borg-hetzner
