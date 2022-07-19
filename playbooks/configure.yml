@@ -241,14 +241,6 @@
       when: uptime_kuma_container is defined and uptime_kuma_container
       tags: uptime_kuma
 
-    - name: Include docker-wallabag role
-      ansible.builtin.include_role:
-        name: docker-wallabag
-        apply:
-          tags: wallabag
-      when: wallabag_container is defined and wallabag_container
-      tags: wallabag
-
     - name: Wireguard
       when: wireguard_container is defined and wireguard_container
       block:

@@ -21,8 +21,8 @@
 - name: Create wallabag postgres data directory
   ansible.builtin.file:
     path: "{{ wallabag_container_postgres_data_dir }}"
-    owner: "{{ wallabag_container_user_id }}"
-    group: "{{ wallabag_container_group_id }}"
+    owner: 999
+    group: 999
     mode: 0740
     state: directory
   become: true
