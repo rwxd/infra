@@ -136,55 +136,6 @@
       when: caddy is defined and caddy
       tags: caddy
 
-    - name: Include node exporter cert role
-      ansible.builtin.include_role:
-        name: node_exporter_certificate
-        apply:
-          tags: node_exporter
-          become: true
-      when: node_exporter_cert is defined and node_exporter_cert
-      tags: node_exporter
-
-    # - name: Include node exporter role
-    #   ansible.builtin.include_role:
-    #     name: ansible-node-exporter
-    #     apply:
-    #       tags: node_exporter
-    #       become: true
-    #   # vars:
-    #   #   cert_file: /etc/node_exporter/tls.cert
-    #   #   key_file: /etc/node_exporter/tls.key
-    #   when: node_exporter is defined and node_exporter
-    #   tags: node_exporter
-
-    - name: Include node exporter container role
-      ansible.builtin.include_role:
-        name: docker_node_exporter
-        apply:
-          tags: node_exporter
-          become: true
-      # vars:
-      #   cert_file: /etc/node_exporter/tls.cert
-      #   key_file: /etc/node_exporter/tls.key
-      when: node_exporter_container is defined and node_exporter_container
-      tags: node_exporter
-
-    - name: Include fritz-exporter-new role
-      ansible.builtin.include_role:
-        name: docker-fritz-exporter-new
-        apply:
-          tags: fritz_exporter
-      when: fritz_exporter_container is defined and fritz_exporter_container
-      tags: fritz_exporter
-
-    - name: Include blackbox-exporter role
-      ansible.builtin.include_role:
-        name: docker-blackbox-exporter
-        apply:
-          tags: blackbox_exporter
-      when: blackbox_exporter_container is defined and blackbox_exporter_container
-      tags: blackbox_exporter
-
     - name: Include traefik role
       ansible.builtin.include_role:
         name: docker-traefik
@@ -200,14 +151,6 @@
           tags: cloudflare_ddns
       when: cloudflare_ddns_container is defined and cloudflare_ddns_container
       tags: cloudflare_ddns
-
-    - name: Include monitoring-stack role
-      ansible.builtin.include_role:
-        name: docker-monitoring-stack
-        apply:
-          tags: monitoring_stack
-      when: monitoring_stack is defined and monitoring_stack
-      tags: monitoring_stack
 
     - name: Include actualbudget role
       ansible.builtin.include_role:
@@ -240,14 +183,6 @@
           tags: uptime_kuma
       when: uptime_kuma_container is defined and uptime_kuma_container
       tags: uptime_kuma
-
-    - name: Include docker-wallabag role
-      ansible.builtin.include_role:
-        name: docker-wallabag
-        apply:
-          tags: wallabag
-      when: wallabag_container is defined and wallabag_container
-      tags: wallabag
 
     - name: Wireguard
       when: wireguard_container is defined and wireguard_container

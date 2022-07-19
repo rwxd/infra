@@ -1,0 +1,22 @@
+---
+cloudflare_exporter_container_name: cloudflare-exporter
+cloudflare_exporter_container_image: "ghcr.io/lablabs/cloudflare_exporter:0.0.10"
+cloudflare_exporter_container_ports:
+  - "8080:8080"
+cloudflare_exporter_container_state: started
+cloudflare_exporter_container_user: cloudflare_exporter
+cloudflare_exporter_container_user_id: 1000
+cloudflare_exporter_container_group_id: 1000
+cloudflare_exporter_container_env:
+  "PUID": "{{ cloudflare_exporter_container_user_id | quote }}"
+  "PGID": "{{ cloudflare_exporter_container_group_id | quote }}"
+  "TZ": "{{ cloudflare_exporter_container_timezone | default('Europe/Berlin') | quote }}"
+cloudflare_exporter_container_env_custom: {}
+cloudflare_exporter_container_restart_policy: unless-stopped
+cloudflare_exporter_container_dir: "/var/containers/cloudflare_exporter/"
+cloudflare_exporter_container_labels: {}
+cloudflare_exporter_container_labels_custom: {}
+cloudflare_exporter_container_commands: []
+cloudflare_exporter_container_commands_custom: []
+cloudflare_exporter_container_networks: []
+cloudflare_exporter_container_networks_custom: []

@@ -1,0 +1,70 @@
+---
+- name: Configure backup
+  hosts: all
+  debugger: on_failed
+  gather_facts: false
+  tasks:
+    - name: Include monitoring-stack role
+      ansible.builtin.include_role:
+        name: docker-monitoring-stack
+        apply:
+          tags: monitoring_stack
+      when: monitoring_stack is defined and monitoring_stack
+      tags: monitoring_stack
+
+    - name: Include node exporter cert role
+      ansible.builtin.include_role:
+        name: node_exporter_certificate
+        apply:
+          tags: node_exporter
+          become: true
+      when: node_exporter_cert is defined and node_exporter_cert
+      tags: node_exporter
+
+    # - name: Include node exporter role
+    #   ansible.builtin.include_role:
+    #     name: ansible-node-exporter
+    #     apply:
+    #       tags: node_exporter
+    #       become: true
+    #   # vars:
+    #   #   cert_file: /etc/node_exporter/tls.cert
+    #   #   key_file: /etc/node_exporter/tls.key
+    #   when: node_exporter is defined and node_exporter
+    #   tags: node_exporter
+
+    - name: Include node exporter container role
+      ansible.builtin.include_role:
+        name: docker_node_exporter
+        apply:
+          tags: node_exporter
+          become: true
+      # vars:
+      #   cert_file: /etc/node_exporter/tls.cert
+      #   key_file: /etc/node_exporter/tls.key
+      when: node_exporter_container is defined and node_exporter_container
+      tags: node_exporter
+
+    - name: Include fritz-exporter-new role
+      ansible.builtin.include_role:
+        name: docker-fritz-exporter-new
+        apply:
+          tags: fritz_exporter
+      when: fritz_exporter_container is defined and fritz_exporter_container
+      tags: fritz_exporter
+
+    - name: Include blackbox-exporter role
+      ansible.builtin.include_role:
+        name: docker-blackbox-exporter
+        apply:
+          tags: blackbox_exporter
+      when: blackbox_exporter_container is defined and blackbox_exporter_container
+      tags: blackbox_exporter
+
+    - name: Include cloudflare-exporter role
+      ansible.builtin.include_role:
+        name: docker-cloudflare-exporter
+        apply:
+          tags: cloudflare_exporter
+      when: cloudflare_exporter_container is defined and cloudflare_exporter_container
+      tags: cloudflare_exporter

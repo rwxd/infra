@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+POSITIONAL_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -c|--container)
+      CONTAINER="$2"
+      shift # past argument
+      shift # past value
+      ;;
+	-d|--destination)
+      DESTINATION="$2"
+      shift # past argument
+      shift # past value
+      ;;
+	-u|--user)
+      DB_USER="$2"
+      shift # past argument
+      shift # past value
+      ;;
+	-n|--db)
+      DB_NAME="$2"
+      shift # past argument
+      shift # past value
+      ;;
+	-z|--compressed)
+      COMPRESSED="true"
+      shift # past argument
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+echo "Backing up $DB_NAME into $DESTINATION"
+cmd="docker exec \"$CONTAINER\" sh -c \"pg_dump --username $DB_USER $DB_NAME\" > \"$DESTINATION\""
+echo "Running \"$cmd\""
+eval "$cmd"
+
+if [[ -n "$COMPRESSED" ]]; then
+	echo "Compressing backup"
+	gzip -9 "$DESTINATION"
+fi
