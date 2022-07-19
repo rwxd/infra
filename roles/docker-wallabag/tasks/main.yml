@@ -24,7 +24,6 @@
     owner: "{{ wallabag_container_user_id }}"
     group: "{{ wallabag_container_group_id }}"
     mode: 0740
-    recurse: true
     state: directory
   become: true
 
