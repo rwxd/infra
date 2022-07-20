@@ -1,0 +1,22 @@
+---
+speedtest_exporter_container_name: speedtest-exporter
+speedtest_exporter_container_image: "ghcr.io/miguelndecarvalho/speedtest-exporter:v3.5.2"
+speedtest_exporter_container_ports:
+  - "9798:9798"
+speedtest_exporter_container_state: started
+speedtest_exporter_container_user: speedtest_exporter
+speedtest_exporter_container_user_id: 1000
+speedtest_exporter_container_group_id: 1000
+speedtest_exporter_container_env:
+  "PUID": "{{ speedtest_exporter_container_user_id | quote }}"
+  "PGID": "{{ speedtest_exporter_container_group_id | quote }}"
+  "TZ": "{{ speedtest_exporter_container_timezone | default('Europe/Berlin') | quote }}"
+speedtest_exporter_container_env_custom: {}
+speedtest_exporter_container_restart_policy: unless-stopped
+speedtest_exporter_container_dir: "/var/containers/speedtest_exporter/"
+speedtest_exporter_container_labels: {}
+speedtest_exporter_container_labels_custom: {}
+speedtest_exporter_container_commands: []
+speedtest_exporter_container_commands_custom: []
+speedtest_exporter_container_networks: []
+speedtest_exporter_container_networks_custom: []
