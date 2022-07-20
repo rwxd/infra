@@ -68,3 +68,11 @@
           tags: cloudflare_exporter
       when: cloudflare_exporter_container is defined and cloudflare_exporter_container
       tags: cloudflare_exporter
+
+    - name: Include speedtest-exporter role
+      ansible.builtin.include_role:
+        name: docker_speedtest_exporter
+        apply:
+          tags: speedtest_exporter
+      when: speedtest_exporter_container is defined and cloudflare_exporter_container
+      tags: speedtest_exporter
