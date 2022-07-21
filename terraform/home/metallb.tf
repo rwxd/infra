@@ -9,7 +9,7 @@ resource "helm_release" "metallb" {
   repository = "https://metallb.github.io/metallb"
   chart      = "metallb"
   namespace  = "metallb"
-  version    = "0.12.1"
+  version    = "0.13.4"
 
   depends_on = [kubernetes_namespace.metallb]
 
