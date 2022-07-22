@@ -9,7 +9,7 @@ resource "helm_release" "cert-manager" {
   repository = "https://charts.jetstack.io"
   chart      = "cert-manager"
   namespace  = "cert-manager"
-  version    = "v1.8.2"
+  version    = "v1.9.0"
 
   depends_on = [kubernetes_namespace.cert-manager]
 
